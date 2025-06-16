@@ -1,11 +1,11 @@
 ---
-- name: 在 ceiling 上拉取 GitHub 仓库代码
+- name: Pull GitHub repository code on ceiling
   hosts: ceiling
-  become: yes  # 如果需要以 root 权限执行，否则可以去掉
+  become: yes  # Use root privileges if needed; remove if not necessary
   tasks:
-    - name: 克隆 GitHub 仓库
+    - name: Clone GitHub repository
       git:
         repo: 'https://github.com/Agata872/DLI_Validation.git'
-        dest: /home/pi/Techtile_Channel_Measurement
-        version: master  # 或者你需要的分支/标签/commit
-        force: yes     # 如果需要强制更新代码
+        dest: /home/pi/DLI_Validation
+        version: master  # Or the branch/tag/commit you need
+        force: yes     # Force update if needed
