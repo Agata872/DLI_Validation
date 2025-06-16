@@ -1,0 +1,7 @@
+---
+- name: Change ownership of /home/pi/DLI_Validation on ceiling nodes
+  hosts: ceiling
+  become: yes
+  tasks:
+    - name: Set ownership recursively for DLI_Validation
+      ansible.builtin.command: chown -R pi:pi /home/pi/DLI_Validation
