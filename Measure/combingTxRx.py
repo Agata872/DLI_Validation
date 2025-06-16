@@ -68,8 +68,8 @@ def main():
         sys.exit(1)
     tx_target = f"{global_user}@{tx_ip}"
 
-    TX_SCRIPT_PATH = "~/Techtile_Channel_Measurement/client/Tx.py"
-    RX_SCRIPT_PATH = "~/Techtile_Channel_Measurement/client/Rx.py"
+    TX_SCRIPT_PATH = "~/DLI_Validation/Measure/Tx.py"
+    RX_SCRIPT_PATH = "~/DLI_Validation/Measure/Rx.py"
 
     print(f"🚀 Starting transmitter {TX_NAME} ({tx_target}) ...")
     tx_thread = threading.Thread(target=run_remote_script, args=(tx_target, TX_SCRIPT_PATH))
