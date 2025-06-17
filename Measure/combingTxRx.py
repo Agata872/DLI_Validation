@@ -23,7 +23,7 @@ def extract_hosts_from_group(inventory, group_name):
 def run_remote_script(target, script_path):
     """Execute the specified script on the remote device via SSH and print output in real-time."""
     remote_cmd = (
-        'cd ~/Techtile_Channel_Measurement/client && '
+        'cd ~/DLI_Validation/Measure && '
         'export PYTHONPATH="/usr/local/lib/python3/dist-packages:$PYTHONPATH"; ' # When run all ceiling
         #'export PYTHONPATH="/usr/local/lib/python3.11/site-packages:$PYTHONPATH";'
 
