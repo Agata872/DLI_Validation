@@ -2,29 +2,41 @@
 import zmq
 
 def main():
-    # ZMQ 上下文
+    # ZeroMQ setup
     context = zmq.Context()
-    # PULL 套接字绑定在 60000 端口，收集所有 Pi 推送的数据
-    pull = context.socket(zmq.PULL)
+    pull    = context.socket(zmq.PULL)
     pull.bind("tcp://0.0.0.0:60000")
 
-    print("[PC] 等待来自 Pi 的数据推送...")
-    while True:
+    # Open (or create) the result file
+    results_file = "Processed_Result.txt"
+    with open(results_file, "a") as f:
+        print("[PC] Waiting for metrics from Pis…")
         try:
-            # 接收 JSON 格式的数据
-            msg = pull.recv_json()
-            # 打印或进一步处理
-            host = msg.get("host")
-            rnd  = msg.get("round")
-            phi  = msg.get("phi")
-            ts   = msg.get("time")
-            print(f"[PC] 接收到 \"{host}\" 第{rnd}轮测量: phi={phi:.6f}, time={ts}")
-            # TODO: 保存到文件或数据库
-        except KeyboardInterrupt:
-            print("[PC] 终止接收。")
-            break
-        except Exception as e:
-            print(f"[PC] 处理消息时出错: {e}")
+            while True:
+                msg = pull.recv_json()
+                host      = msg["host"]
+                rnd       = msg["round"]
+                circ_mean = msg["circ_mean"]
+                mean_val  = msg["mean"]
+                avg_list  = msg["avg_ampl"]      # list of two floats
+                ts        = msg["time"]
 
-if __name__ == '__main__':
+                # Print to console
+                print(f"[PC] {ts} {host} round {rnd}: "
+                      f"circ_mean={circ_mean:.6f}, "
+                      f"mean={mean_val:.6f}, "
+                      f"avg_ampl=[{avg_list[0]:.6f}, {avg_list[1]:.6f}]")
+
+                # Append to file
+                f.write(f"{ts} {host} round {rnd}: "
+                        f"circ_mean={circ_mean:.6f}, "
+                        f"mean={mean_val:.6f}, "
+                        f"avg_ampl=[{avg_list[0]:.6f},{avg_list[1]:.6f}]\n")
+                f.flush()
+        except KeyboardInterrupt:
+            print("\n[PC] Stopped.")
+        except Exception as e:
+            print(f"[PC] Error: {e}")
+
+if __name__ == "__main__":
     main()

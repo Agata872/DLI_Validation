@@ -123,14 +123,14 @@ def rx_ref(usrp, rx_streamer, quit_event, duration, result_queue, start_time=Non
     finally:
         logger.debug("rx_ref: Capture complete, stopping stream")
         rx_streamer.issue_stream_cmd(uhd.types.StreamCMD(uhd.types.StreamMode.stop_cont))
-        # 截取有效数据（略去前面部分）
+        # Cut off the IQ data to the actual number of samples received
         iq_samples = iq_data[:, int(RATE // 10):num_rx]
 
-        # 保存 IQ 数据到 .npy 文件，文件名由 file_name_state 决定
+        # Save IQ data to file
         np.save(file_name_state, iq_samples)
         logger.debug("IQ data saved as %s.npy", file_name_state)
 
-        # 利用 tools 模块处理 IQ 数据，计算 pilot 信号相位
+        # Use IQ data for further processing
         phase_ch0, freq_slope_ch0 = tools.get_phases_and_apply_bandpass(iq_samples[0, :])
         phase_ch1, freq_slope_ch1 = tools.get_phases_and_apply_bandpass(iq_samples[1, :])
         logger.debug("Frequency offset CH0: %.4f", freq_slope_ch0 / (2*np.pi))
@@ -138,10 +138,12 @@ def rx_ref(usrp, rx_streamer, quit_event, duration, result_queue, start_time=Non
         phase_diff = tools.to_min_pi_plus_pi(phase_ch0 - phase_ch1, deg=False)
         _circ_mean = tools.circmean(phase_diff, deg=False)
         _mean = np.mean(phase_diff)
-        logger.debug("Diff cirmean and mean: %.6f", _circ_mean - _mean)
-        result_queue.put(_circ_mean)
-
         avg_ampl = np.mean(np.abs(iq_samples), axis=1)
+        result_queue.put({
+            "circ_mean": _circ_mean,
+            "mean": _mean,
+            "avg_ampl": avg_ampl.tolist()
+        })
         max_I = np.max(np.abs(np.real(iq_samples)), axis=1)
         max_Q = np.max(np.abs(np.imag(iq_samples)), axis=1)
         logger.debug("MAX AMPL IQ CH0: I %.6f Q %.6f CH1: I %.6f Q %.6f", max_I[0], max_Q[0], max_I[1], max_Q[1])
@@ -290,19 +292,18 @@ def main():
     results_filename = os.path.join(save_dir, "measurement_resultsRX.txt")
     all_results = []
     try:
-        # 初始化 USRP 设备（加载指定 FPGA 固件）
+        # Initialize USRP device
         usrp = uhd.usrp.MultiUSRP("enable_user_regs, fpga=usrp_b210_fpga_loopback_ctrl.bin, mode_n=integer")
         logger.info("Using Device: %s", usrp.get_pp_string())
 
-        # 硬件设置、同步与调谐
+        # Hardware setup
         tx_streamer, rx_streamer = setup(usrp, server_ip, connect=False)
         quit_event = threading.Event()
         result_queue = queue.Queue()
 
         # =========================
-        # === New: Communicate with synchronization server ===
+        # === Synchronization ===
         # =========================
-        # Replace with your actual sync server IP
         sync_server_ip = "192.108.1.147"
         sync_context = zmq.Context()
         # Create REQ socket for 'alive' signal (port 5558)
@@ -322,71 +323,52 @@ def main():
         sync_msg = sync_subscriber.recv_string()
         logger.info("Received SYNC message: %s", sync_msg)
 
-        # =========================
-        # === First round measurement ===
+        # Single measurement round
         current_time = usrp.get_time_now().get_real_secs()
-        start_time_val = current_time + 0.2  # Small delay to ensure synchronization
+        start_time_val = current_time + 0.2  # small delay for sync
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        file_name_state = f"{file_name}_{HOSTNAME}_pilot_round1_{timestamp}"
-        logger.info("Scheduled first RX start time: %.6f", start_time_val)
-        measure_pilot(usrp, rx_streamer, quit_event, result_queue, at_time=start_time_val)
-        phi1 = result_queue.get()
-        logger.info("Round 1 pilot signal measured phase: %.6f", phi1)
-        all_results.append(phi1)
+        file_name_state = f"{file_name}_{HOSTNAME}_pilot_{timestamp}"
+        logger.info("Scheduled RX start time: %.6f", start_time_val)
 
-        # Wait 3 seconds between rounds
-        logger.info("Waiting 3 seconds between rounds...")
-        time.sleep(3)
+        measure_pilot(
+            usrp, rx_streamer, quit_event, result_queue, at_time=start_time_val
+        )
+        # phi = result_queue.get()
+        metrics = result_queue.get()
+        circ_mean = metrics["circ_mean"]
+        mean_val = metrics["mean"]
+        avg_ampl = metrics["avg_ampl"]  # [ch0, ch1]
+        logger.info("Measured pilot phase: %.6f", phi)
 
-        # === Second round measurement ===
-        start_time_val = usrp.get_time_now().get_real_secs() + 0.2
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        file_name_state = f"{file_name}_{HOSTNAME}_pilot_round2_{timestamp}"
-        logger.info("Scheduled second RX start time: %.6f", start_time_val)
-        measure_pilot(usrp, rx_streamer, quit_event, result_queue, at_time=start_time_val)
-        phi2 = result_queue.get()
-        logger.info("Round 2 pilot signal measured phase: %.6f", phi2)
-        all_results.append(phi2)
-        # -------------------------------------------------------------
-        try:
-            push = context.socket(zmq.PUSH)
-            # 将 CPU_IP 替换为你 PC 的实际 IP 地址
-            CPU_IP = "192.108.1.147"
-            push.connect(f"tcp://{CPU_IP}:60000")
+        # Send result to PC
+        push = context.socket(zmq.PUSH)
+        push.connect("tcp://<CPU_IP>:60000")  # 填写你电脑的IP
+        push.send_json({
+            "host": HOSTNAME,
+            "round": 1,
+            "circ_mean": float(circ_mean),
+            "mean": float(mean_val),
+            "avg_ampl": avg_ampl,
+            "time": datetime.now().isoformat()
+        })
+        logger.info("Pushed result to PC")
 
-            # 推送第 1 轮结果
-            push.send_json({
-                "host": HOSTNAME,
-                "round": 1,
-                "phi": float(phi1),
-                "time": datetime.now().isoformat()
-            })
-            logger.info("Pushed round 1 result to PC")
-
-            # 推送第 2 轮结果
-            push.send_json({
-                "host": HOSTNAME,
-                "round": 2,
-                "phi": float(phi2),
-                "time": datetime.now().isoformat()
-            })
-            logger.info("Pushed round 2 result to PC")
-        except Exception as e_push:
-            logger.error("推送结果到 PC 失败: %s", e_push)
-        #----------------------------------------------------------
-        # Save measurement results
+        # Save to local file
         with open(results_filename, "a") as f:
-            f.write(f"{datetime.now()}: RX1 Pilot phase round 1: {phi1:.6f}\n")
-            f.write(f"{datetime.now()}: RX1 Pilot phase round 2: {phi2:.6f}\n")
-        logger.info("Measurement results saved to %s", results_filename)
-
-        # Print result to console
+            f.write(
+                f"{datetime.now()}: {HOSTNAME} "
+                f"circ_mean={circ_mean:.6f}, "
+                f"mean={mean_val:.6f}, "
+                f"avg_ampl=[{avg_ampl[0]:.6f},{avg_ampl[1]:.6f}]\n"
+            )
+        # Print to console
         print("Measurement DONE")
-        print("Round 1 pilot phase: %.6f" % phi1)
-        print("Round 2 pilot phase: %.6f" % phi2)
+        # print(f"Pilot phase: {phi:.6f}")
+
     except Exception as e:
         logger.error("Error encountered: %s", e)
         quit_event.set()
+
     finally:
         time.sleep(1)
         sys.exit(0)
