@@ -826,6 +826,8 @@ all:
         G07:
         G08:
         G09:
+        T01:
+        M01:
     segmentA:
       hosts:
         A01:
