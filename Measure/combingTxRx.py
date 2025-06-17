@@ -24,8 +24,7 @@ def run_remote_script(target, script_path):
     """Execute the specified script on the remote device via SSH and print output in real-time."""
     remote_cmd = (
         'cd ~/DLI_Validation/Measure && '
-        'export PYTHONPATH="/usr/local/lib/python3/dist-packages:$PYTHONPATH"; ' # When run all ceiling
-        #'export PYTHONPATH="/usr/local/lib/python3.11/site-packages:$PYTHONPATH";'
+        'export PYTHONPATH="/usr/local/lib/python3/dist-packages:$PYTHONPATH"; '
 
         f'python3 -u {script_path}'
     )
@@ -51,13 +50,13 @@ def main():
     inventory_file = "inventory.yaml"
     inventory = load_inventory(inventory_file)
 
-    TX_NAME = "T01"
-    RX_GROUP_NAME = "ceiling"  # ceiling
-    RX_NAMES = extract_hosts_from_group(inventory, RX_GROUP_NAME)
-
     # TX_NAME = "T01"
-    # RX_GROUP_NAME = ["M01"]  # ceiling
+    # RX_GROUP_NAME = "ceiling"  # ceiling
     # RX_NAMES = extract_hosts_from_group(inventory, RX_GROUP_NAME)
+
+    TX_NAME = "T01"
+    RX_GROUP_NAME = ["M01"]  # ceiling
+    RX_NAMES = extract_hosts_from_group(inventory, RX_GROUP_NAME)
 
 
     global_user = inventory.get("all", {}).get("vars", {}).get("ansible_user", "pi")

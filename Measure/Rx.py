@@ -347,7 +347,33 @@ def main():
         phi2 = result_queue.get()
         logger.info("Round 2 pilot signal measured phase: %.6f", phi2)
         all_results.append(phi2)
+        # -------------------------------------------------------------
+        try:
+            push = context.socket(zmq.PUSH)
+            # 将 CPU_IP 替换为你 PC 的实际 IP 地址
+            CPU_IP = "192.108.1.147"
+            push.connect(f"tcp://{CPU_IP}:60000")
 
+            # 推送第 1 轮结果
+            push.send_json({
+                "host": HOSTNAME,
+                "round": 1,
+                "phi": float(phi1),
+                "time": datetime.now().isoformat()
+            })
+            logger.info("Pushed round 1 result to PC")
+
+            # 推送第 2 轮结果
+            push.send_json({
+                "host": HOSTNAME,
+                "round": 2,
+                "phi": float(phi2),
+                "time": datetime.now().isoformat()
+            })
+            logger.info("Pushed round 2 result to PC")
+        except Exception as e_push:
+            logger.error("推送结果到 PC 失败: %s", e_push)
+        #----------------------------------------------------------
         # Save measurement results
         with open(results_filename, "a") as f:
             f.write(f"{datetime.now()}: RX1 Pilot phase round 1: {phi1:.6f}\n")
