@@ -24,7 +24,9 @@ def run_remote_script(target, script_path):
     """Execute the specified script on the remote device via SSH and print output in real-time."""
     remote_cmd = (
         'cd ~/Techtile_Channel_Measurement/client && '
-        'export PYTHONPATH="/usr/local/lib/python3/dist-packages:$PYTHONPATH"; '
+        #'export PYTHONPATH="/usr/local/lib/python3/dist-packages:$PYTHONPATH"; ' # When run all ceiling
+        'export PYTHONPATH="/usr/local/lib/python3.11/site-packages:$PYTHONPATH";'
+
         f'python3 -u {script_path}'
     )
     cmd = ["ssh", target, remote_cmd]
