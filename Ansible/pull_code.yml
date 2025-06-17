@@ -5,7 +5,7 @@
   tasks:
     - name: Clone GitHub repository
       git:
-        repo: 'https://github.com/Agata872/DLI_Validation.git'
+        repo: 'https://github.com/techtile-by-dramco/DLI_Validation.git'
         dest: /home/pi/DLI_Validation
         version: master  # Or the branch/tag/commit you need
         force: yes     # Force update if needed
