@@ -48,11 +48,17 @@ def run_remote_script(target, script_path):
         print(f"❌ Failed to run script on {target}: {e}")
 
 def main():
-    TX_NAME = "T01"
-    RX_NAMES = ["ceiling"]  # ceiling
-
     inventory_file = "inventory.yaml"
     inventory = load_inventory(inventory_file)
+
+    TX_NAME = "T01"
+    RX_GROUP_NAME = "ceiling"  # ceiling
+    RX_NAMES = extract_hosts_from_group(inventory, RX_GROUP_NAME)
+
+    # TX_NAME = "T01"
+    # RX_GROUP_NAME = ["M01"]  # ceiling
+    # RX_NAMES = extract_hosts_from_group(inventory, RX_GROUP_NAME)
+
 
     global_user = inventory.get("all", {}).get("vars", {}).get("ansible_user", "pi")
     all_hosts = inventory.get("all", {}).get("hosts", {})
