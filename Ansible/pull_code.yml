@@ -1,6 +1,6 @@
 ---
 - name: Pull GitHub repository code on ceiling
-  hosts: T01, M01 #ceiling
+  hosts: ceiling #ceiling
   become: yes  # Use root privileges if needed; remove if not necessary
   tasks:
     - name: Clone GitHub repository
