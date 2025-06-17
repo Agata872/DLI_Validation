@@ -50,7 +50,7 @@ def run_check_and_kill(target, user):
 
 def main():
     inventory_file = "inventory.yaml"
-    group_name = "[T01],[M01]"
+    group_name = "ceiling"
 
     inventory = load_inventory(inventory_file)
     global_user = inventory.get("all", {}).get("vars", {}).get("ansible_user", "pi")
