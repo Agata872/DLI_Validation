@@ -828,6 +828,10 @@ all:
         G09:
         T01:
         M01:
+    BD:
+      hosts:
+        T01:
+        M01:
     segmentA:
       hosts:
         A01:
