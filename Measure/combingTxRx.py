@@ -55,8 +55,7 @@ def main():
     # RX_NAMES = extract_hosts_from_group(inventory, RX_GROUP_NAME)
 
     TX_NAME = "T01"
-    RX_GROUP_NAME = ["M01"]  # ceiling
-    RX_NAMES = extract_hosts_from_group(inventory, RX_GROUP_NAME)
+    RX_NAMES = ["M01"]
 
 
     global_user = inventory.get("all", {}).get("vars", {}).get("ansible_user", "pi")
