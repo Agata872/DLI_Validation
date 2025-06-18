@@ -390,6 +390,7 @@ def main():
             f.write(
                 f"{datetime.now()}: {HOSTNAME} "
                 f"circ_mean={circ_mean:.6f}, "
+                f"phi_csi={phi_CSI:.6f}, "
                 f"mean={mean_val:.6f}, "
                 f"avg_ampl=[{avg_ampl[0]:.6f},{avg_ampl[1]:.6f}]\n"
             )
