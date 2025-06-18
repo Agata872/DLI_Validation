@@ -41,7 +41,7 @@ def run_check_and_kill(target, user):
                 subprocess.run(["ssh", ssh_prefix, kill_cmd])
                 print(f"🗡️  [{ssh_prefix}] Terminated PID {pid}")
         else:
-            print(f"✅ [{ssh_prefix}] No process listening on port 50001, skipping.")
+            print(f"✅ [{ssh_prefix}] No process listening on port 50002, skipping.")
 
     except subprocess.TimeoutExpired:
         print(f"⚠️  [{ssh_prefix}] SSH timeout, skipping.")
