@@ -34,7 +34,7 @@ SWITCH_RESET_MODE = 0x00000000
 # Initialize ZMQ (TX task doesn't send IQ data, but initialization is retained)
 context = zmq.Context()
 iq_socket = context.socket(zmq.PUB)
-iq_socket.bind(f"tcp://*:{50001}")
+iq_socket.bind(f"tcp://*:{50002}")
 
 HOSTNAME = socket.gethostname()[4:]
 file_open = False
