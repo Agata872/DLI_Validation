@@ -20,7 +20,7 @@ def extract_hosts_from_group(inventory, group_name):
 
 def run_check_and_kill(target, user):
     ssh_prefix = f"{user}@{target}"
-    check_cmd = "sudo lsof -i :50001 -t"
+    check_cmd = "sudo lsof -i :50002 -t"
 
     try:
         # Execute check command via SSH
