@@ -50,12 +50,12 @@ def main():
     inventory_file = "inventory.yaml"
     inventory = load_inventory(inventory_file)
 
-    TX_NAME = "M01"
-    RX_GROUP_NAME = "ceiling"  # ceiling
-    RX_NAMES = extract_hosts_from_group(inventory, RX_GROUP_NAME)
+    # TX_NAME = "M01"
+    # RX_GROUP_NAME = "ceiling"  # ceiling
+    # RX_NAMES = extract_hosts_from_group(inventory, RX_GROUP_NAME)
 
-    # TX_NAME = "T01"
-    # RX_NAMES = ["M01"]
+    TX_NAME = "M01"
+    RX_NAMES = ["T01"]
 
 
     global_user = inventory.get("all", {}).get("vars", {}).get("ansible_user", "pi")
