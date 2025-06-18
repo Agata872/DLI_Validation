@@ -55,7 +55,7 @@ class LogFormatter(logging.Formatter):
     def formatTime(self, record, datefmt=None):
         converter = self.converter(record.created)
         if datefmt:
-            formatted_date = converter.strftime(datefmt)
+            formatted_date = time.strftime(datefmt, converter)
         else:
             formatted_date = LogFormatter.pp_now()
         return formatted_date

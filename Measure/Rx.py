@@ -323,7 +323,9 @@ def main():
         sync_msg = sync_subscriber.recv_string()
         logger.info("Received SYNC message: %s", sync_msg)
 
-        # Single measurement round
+        # =========================
+        # ========= PILOT =========
+        # =========================
         current_time = usrp.get_time_now().get_real_secs()
         start_time_val = current_time + 0.2  # small delay for sync
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -338,14 +340,44 @@ def main():
         circ_mean = metrics["circ_mean"]
         mean_val = metrics["mean"]
         avg_ampl = metrics["avg_ampl"]  # [ch0, ch1]
+        phi = circ_mean
         logger.info("Measured pilot phase: %.6f", phi)
+
+        # =========================
+        # ========= CABLE =========
+        # =========================
+        # remove cable delay
+
+        phi_cable = 0
+        with open(
+            os.path.join(os.path.dirname(__file__),"config-phase-offsets.yml"),
+            "r",
+            encoding="utf-8"
+        ) as phases_yaml:
+            try:
+                phases_dict = yaml.safe_load(phases_yaml)
+                if HOSTNAME in phases_dict.keys():
+                    phi_cable = phases_dict[HOSTNAME]
+                    logger.debug("Applying phase: %s", phi_cable)
+                else:
+                    logger.error("Phase not found in phases.yml")
+            except yaml.YAMLError as exc:
+                print(exc)
+
+        phi_CSI = phi + phi_cable 
+        # + phi cable as: phi_ch0 - phi_ch1 = phi_pilotch - phi_refch = phi_pilot - phi_ref + phi_ch - phi_cable_delay
+        # phi_CSI = phi_pilot - phi_ref + phi_ch
+        # phi_pilot and phi_ref si the same for all USRPs
+
+        logger.info("Phase after cable delay correction: %.6f", phi_CSI)
 
         # Send result to PC
         push = context.socket(zmq.PUSH)
-        push.connect("tcp://<CPU_IP>:60000")  # 填写你电脑的IP
+        push.connect(f"tcp://{sync_server_ip}:60000")  # 填写你电脑的IP
         push.send_json({
             "host": HOSTNAME,
             "round": 1,
+            "phi_csi": phi_CSI,
             "circ_mean": float(circ_mean),
             "mean": float(mean_val),
             "avg_ampl": avg_ampl,
@@ -354,7 +386,7 @@ def main():
         logger.info("Pushed result to PC")
 
         # Save to local file
-        with open(results_filename, "a") as f:
+        with open(results_filename, "a", encoding="utf-8") as f:
             f.write(
                 f"{datetime.now()}: {HOSTNAME} "
                 f"circ_mean={circ_mean:.6f}, "
@@ -365,7 +397,7 @@ def main():
         print("Measurement DONE")
         # print(f"Pilot phase: {phi:.6f}")
 
-    except Exception as e:
+    except (uhd.usrp.UsrpError, zmq.ZMQError, OSError, ValueError) as e:
         logger.error("Error encountered: %s", e)
         quit_event.set()
 
