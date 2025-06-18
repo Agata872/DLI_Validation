@@ -24,12 +24,14 @@ def main():
 
                 # Print to console
                 print(f"[PC] {ts} {host} round {rnd}: "
+                      f"Phi_CSI={Phi_CSI:.6f}, "
                       f"circ_mean={circ_mean:.6f}, "
                       f"mean={mean_val:.6f}, "
                       f"avg_ampl=[{avg_list[0]:.6f}, {avg_list[1]:.6f}]")
 
                 # Append to file
                 f.write(f"{ts} {host} round {rnd}: "
+                        f"Phi_CSI={Phi_CSI:.6f}, "
                         f"circ_mean={circ_mean:.6f}, "
                         f"mean={mean_val:.6f}, "
                         f"avg_ampl=[{avg_list[0]:.6f},{avg_list[1]:.6f}]\n")
