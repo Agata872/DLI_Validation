@@ -16,7 +16,7 @@ def main():
                 msg = pull.recv_json()
                 host      = msg["host"]
                 rnd       = msg["round"]
-                Phi_CSI   = msg["phi_CSI"]
+                Phi_CSI   = msg["phi_csi"]
                 circ_mean = msg["circ_mean"]
                 mean_val  = msg["mean"]
                 avg_list  = msg["avg_ampl"]      # list of two floats
