@@ -373,7 +373,7 @@ def main():
 
         # Send result to PC
         push = context.socket(zmq.PUSH)
-        push.connect(f"tcp://{sync_server_ip}:50001")  # 填写你电脑的IP
+        push.connect(f"tcp://{sync_server_ip}:60000")  # 填写你电脑的IP
         push.send_json({
             "host": HOSTNAME,
             "round": 1,
