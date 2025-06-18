@@ -373,7 +373,7 @@ def main():
 
         # Send result to PC
         push = context.socket(zmq.PUSH)
-        push.connect(f"tcp://{sync_server_ip}:60000")  # 填写你电脑的IP
+        push.connect(f"tcp://{sync_server_ip}:50001")  # 填写你电脑的IP
         push.send_json({
             "host": HOSTNAME,
             "round": 1,
@@ -389,9 +389,10 @@ def main():
         with open(results_filename, "a", encoding="utf-8") as f:
             f.write(
                 f"{datetime.now()}: {HOSTNAME} "
+                f"circ_mean={circ_mean:.6f}, "
                 f"phi_csi={phi_CSI:.6f}, "
                 f"mean={mean_val:.6f}, "
-                f"avg_ampl={avg_ampl[0]:.6f}\n"
+                f"avg_ampl=[{avg_ampl[0]:.6f},{avg_ampl[1]:.6f}]\n"
             )
         # Print to console
         print("Measurement DONE")
