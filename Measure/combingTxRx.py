@@ -50,7 +50,7 @@ def main():
     inventory_file = "inventory.yaml"
     inventory = load_inventory(inventory_file)
 
-    TX_NAME = "T01"
+    TX_NAME = "M01"
     RX_GROUP_NAME = "ceiling"  # ceiling
     RX_NAMES = extract_hosts_from_group(inventory, RX_GROUP_NAME)
 
