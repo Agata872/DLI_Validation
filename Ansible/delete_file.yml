@@ -3,21 +3,10 @@
   hosts: ceiling
   become: true
   vars:
-    # 替换为你的实际路径
+    # 替换成你真实的路径
     raw_data_path: "/home/pi/Techtile_Channel_Measurement/Raw_Data"
 
   tasks:
-    - name: 确保 Raw_Data 目录存在
-      stat:
-        path: "{{ raw_data_path }}"
-      register: raw_data_stat
-
-    - name: 取消 Raw_Data 及子文件的不可变属性
-      shell:
-        cmd: chattr -R -i "{{ raw_data_path }}"
-        executable: /bin/bash
-        warn: false
-      when: raw_data_stat.stat.exists
 
     - name: 查找 Raw_Data 目录下的所有 .npy 文件
       find:
