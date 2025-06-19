@@ -515,7 +515,7 @@ def main():
         # Create REQ socket for 'alive' signal (port 5558)
         alive_client = sync_context.socket(zmq.REQ)
         alive_client.connect(f"tcp://{sync_server_ip}:5558")
-        alive_message = f"{HOSTNAME} RX1 alive"
+        alive_message = f"{HOSTNAME} RX alive"
         logger.info("Sending alive message to sync server: %s", alive_message)
         alive_client.send_string(alive_message)
         reply = alive_client.recv_string()
@@ -544,8 +544,8 @@ def main():
         # phi = result_queue.get()
         metrics = result_queue.get()
         circ_mean = metrics["circ_mean"]
-        mean_val = metrics["mean"]
-        avg_ampl = metrics["avg_ampl"]  # [ch0, ch1]
+        # mean_val = metrics["mean"]
+        # avg_ampl = metrics["avg_ampl"]  # [ch0, ch1]
         phi_P = circ_mean
         logger.info("Measured pilot phase: %.6f", phi_P)
 
@@ -592,7 +592,8 @@ def main():
         # =========================
         # = DL Transmission =======
         # =========================
-
+        now = usrp.get_time_now().get_real_secs()
+        logger.info("Now=%f, scheduling DL at %f  (delta=%f)", now, start_next_cmd, start_next_cmd - now)
         start_next_cmd = usrp.get_time_now().get_real_secs() + margin
 
         tx_phase_coh(
