@@ -12,8 +12,9 @@
       register: raw_data_stat
 
     - name: 取消 Raw_Data 目录及子文件的不可变属性
-      command: chattr -R -i "{{ raw_data_path }}"
-      args:
+      shell:
+        cmd: chattr -R -i "{{ raw_data_path }}"
+        executable: /bin/bash
         warn: false
       when: raw_data_stat.stat.exists
 
