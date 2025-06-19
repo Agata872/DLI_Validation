@@ -395,6 +395,13 @@ def main():
                 f"avg_ampl=[{avg_ampl[0]:.6f},{avg_ampl[1]:.6f}]\n"
             )
 
+        # TODO not only push, but use request, response, so you get as a result the beamforming weights
+
+        # =========================
+        # ======= BF WEIGHTS ======
+        # =========================
+
+        phi_BF = 0 # TODO get BF weights from Ahmed
 
         # TODO timing control!
         # =========================
@@ -403,24 +410,13 @@ def main():
 
         phi_LB = 0
 
-        # TODO get loopback phase 
-
-        # =========================
-        # ======= BF WEIGHTS ======
-        # =========================
-
-        
-
-        phi_BF = 0 # TODO get BF weights from Ahmed
-
+        # TODO get loopback phase
 
         # =========================
         # = DL Transmission =======
         # =========================
 
         phi_TX = phi_BF + phi_LB
-
-
 
         # Print to console
         print("Measurement DONE")
