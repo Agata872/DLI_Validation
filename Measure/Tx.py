@@ -285,7 +285,7 @@ def main():
         tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
 
         # Stop transmission after a certain duration
-        time.sleep(CAPTURE_TIME + 15.0)
+        time.sleep(CAPTURE_TIME + 10.0)
         quit_event.set()
         tx_thr.join()
         tx_meta_thr.join()

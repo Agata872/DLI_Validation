@@ -19,7 +19,7 @@ import tools
 CMD_DELAY = 0.05               # Command delay
 RX_TX_SAME_CHANNEL = True      # Loopback flag for same TX/RX channel
 CLOCK_TIMEOUT = 1000           # External clock lock timeout (ms)
-INIT_DELAY = 0.2               # Initial delay (seconds)
+INIT_DELAY = 0.6               # Initial delay (seconds)
 RATE = 250e3
 LOOPBACK_TX_GAIN = 70          # TX gain (empirical value)
 RX_GAIN = 22                   # RX gain (empirical value)
