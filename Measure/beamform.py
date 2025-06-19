@@ -716,7 +716,8 @@ def main():
         tx_phase = 0
 
         with open(
-            os.path.join(os.path.dirname(__file__), "config-phase-friis-sim2.yml"), "r"
+            # os.path.join(os.path.dirname(__file__), "config-phase-friis-sim2.yml"), "r"
+            os.path.join(os.path.dirname(__file__), "DLI_precoding.yml"), "r"
         ) as phases_yaml:
             try:
                 phases_dict = yaml.safe_load(phases_yaml)
