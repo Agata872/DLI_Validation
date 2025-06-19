@@ -1,0 +1,35 @@
+---
+- name: 删除 ceiling 组主机上 Raw_Data 目录下的所有文件
+  hosts: ceiling
+  become: true        # 如需提权（sudo），保留此项
+  vars:
+    # 将下面路径改成目标机器上 Techtile_Channel_Measurement/Raw_Data 的绝对路径
+    raw_data_path: "/path/to/Techtile_Channel_Measurement/Raw_Data"
+
+  tasks:
+    - name: 检查 Raw_Data 目录是否存在
+      stat:
+        path: "{{ raw_data_path }}"
+      register: raw_data_stat
+
+    - name: 查找 Raw_Data 目录下的所有文件
+      find:
+        paths: "{{ raw_data_path }}"
+        file_type: file
+      register: raw_data_files
+      when: raw_data_stat.stat.exists
+
+    - name: 删除 Raw_Data 目录下的所有文件
+      file:
+        path: "{{ item.path }}"
+        state: absent
+      loop: "{{ raw_data_files.files }}"
+      when:
+        - raw_data_stat.stat.exists
+        - raw_data_files.matched > 0
+
+    - name: （可选）输出删除结果
+      debug:
+        msg: "共删除 {{ raw_data_files.matched }} 个文件。"
+      when:
+        - raw_data_stat.stat.exists
