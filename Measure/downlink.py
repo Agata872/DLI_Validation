@@ -27,6 +27,7 @@ def run_remote_script(target: str, script_path: str):
         "ssh",
         target,
         f'cd {Path(script_path).parent} && '
+        'export PYTHONPATH="/usr/local/lib/python3/dist-packages:$PYTHONPATH";'
         f'python3 -u {script_path}'
     ]
     try:
