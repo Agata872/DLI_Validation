@@ -286,7 +286,6 @@ def tx_async_th(tx_streamer, quit_event):
         pass
 
 
-
 def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
     num_channels = tx_streamer.get_num_channels()
 
@@ -547,8 +546,8 @@ def main():
         circ_mean = metrics["circ_mean"]
         mean_val = metrics["mean"]
         avg_ampl = metrics["avg_ampl"]  # [ch0, ch1]
-        phi = circ_mean
-        logger.info("Measured pilot phase: %.6f", phi)
+        phi_P = circ_mean
+        logger.info("Measured pilot phase: %.6f", phi_P)
 
         # =========================
         # ========= CABLE =========
@@ -571,57 +570,11 @@ def main():
             except yaml.YAMLError as exc:
                 print(exc)
 
-        phi_CSI = phi + phi_cable 
-        # + phi cable as: phi_ch0 - phi_ch1 = phi_pilotch - phi_refch = phi_pilot - phi_ref + phi_ch - phi_cable_delay
-        # phi_CSI = phi_pilot - phi_ref + phi_ch
-        # phi_pilot and phi_ref si the same for all USRPs
-
-        logger.info("Phase after cable delay correction: %.6f", phi_CSI)
-
-        # Send result to PC
-        push = context.socket(zmq.PUSH)
-        push.connect(f"tcp://{sync_server_ip}:60000")  # 填写你电脑的IP
-        push.send_json({
-            "host": HOSTNAME,
-            "round": 1,
-            "phi_csi": phi_CSI,
-            "circ_mean": float(circ_mean),
-            "mean": float(mean_val),
-            "avg_ampl": avg_ampl,
-            "time": datetime.now().isoformat()
-        })
-        logger.info("Pushed result to PC")
-
-        # Save to local file
-        with open(results_filename, "a", encoding="utf-8") as f:
-            f.write(
-                f"{datetime.now()}: {HOSTNAME} "
-                f"circ_mean={circ_mean:.6f}, "
-                f"phi_csi={phi_CSI:.6f}, "
-                f"mean={mean_val:.6f}, "
-                f"avg_ampl=[{avg_ampl[0]:.6f},{avg_ampl[1]:.6f}]\n"
-            )
-
-        # TODO not only push, but use request, response, so you get as a result the beamforming weights
-
-        # =========================
-        # ======= BF WEIGHTS ======
-        # =========================
-
-        phi_BF = 0 # TODO get BF weights from Ahmed
-
-        # TODO timing control!
-        # =========================
-        # ======= LOOPBACK ========
-        # =========================
-
         phi_LB = 0
 
         margin = 2.0
 
-        cmd_time = CAPTURE_TIME + margin
-
-        start_next_cmd = cmd_time
+        start_next_cmd = usrp.get_time_now().get_real_secs() + margin
 
         result_queue = queue.Queue()
 
@@ -640,13 +593,13 @@ def main():
         # = DL Transmission =======
         # =========================
 
-        phi_TX = phi_BF + phi_LB
+        start_next_cmd = usrp.get_time_now().get_real_secs() + margin
 
         tx_phase_coh(
             usrp,
             tx_streamer,
             quit_event,
-            phase_corr=phi_TX,
+            phase_corr=phi_LB + phi_P + np.deg2rad(phi_cable),
             at_time=start_next_cmd,
             long_time=True,
         )
