@@ -7,16 +7,6 @@
     raw_data_path: "/home/pi/Techtile_Channel_Measurement/Raw_Data"
 
   tasks:
-
-    - name: 查找 Raw_Data 目录下的所有 .npy 文件
-      find:
-        paths: "{{ raw_data_path }}"
-        patterns: "*.npy"
-        recurse: yes
-        file_type: file
-      register: npy_files
-      when: raw_data_stat.stat.exists
-
     - name: 删除所有 .npy 文件
       file:
         path: "{{ item.path }}"
@@ -25,8 +15,3 @@
       when:
         - raw_data_stat.stat.exists
         - npy_files.matched > 0
-
-    - name: 输出删除结果
-      debug:
-        msg: "已删除 {{ npy_files.matched | default(0) }} 个 .npy 文件。"
-      when: raw_data_stat.stat.exists
