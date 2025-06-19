@@ -1,9 +1,8 @@
 ---
-- name: 强制删除 ceiling 组主机上 Raw_Data 目录下的所有文件
+- name: 强制清空 ceiling 组主机上 Raw_Data
   hosts: ceiling
   become: true
   vars:
-    # 将此处替换为你的实际绝对路径
     raw_data_path: "/home/pi/Techtile_Channel_Measurement/Raw_Data"
 
   tasks:
@@ -12,14 +11,26 @@
         path: "{{ raw_data_path }}"
       register: raw_data_stat
 
-    - name: 强制删除 Raw_Data 目录下所有文件
-      shell: rm -rf "{{ raw_data_path }}/*"
+    - name: 取消 Raw_Data 目录及子文件的不可变属性
+      command: chattr -R -i "{{ raw_data_path }}"
       args:
-        executable: /bin/bash
         warn: false
       when: raw_data_stat.stat.exists
 
-    - name: （可选）输出删除结果
+    - name: 删除 Raw_Data 目录（含所有内容）
+      file:
+        path: "{{ raw_data_path }}"
+        state: absent
+      when: raw_data_stat.stat.exists
+
+    - name: 重建 Raw_Data 目录
+      file:
+        path: "{{ raw_data_path }}"
+        state: directory
+        mode: '0755'
+      when: raw_data_stat.stat.exists
+
+    - name: 输出结果
       debug:
-        msg: "已强制删除 {{ raw_data_path }} 下的所有文件。"
+        msg: "已删除并重建 {{ raw_data_path }}。"
       when: raw_data_stat.stat.exists
