@@ -605,6 +605,8 @@ def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr, at_time, long_time=T
 
     start_time = uhd.types.TimeSpec(at_time)
 
+    logger.debug(starting_in(usrp, at_time))
+
     tx_thr = tx_thread(
         usrp,
         tx_streamer,
