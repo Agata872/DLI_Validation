@@ -83,14 +83,28 @@ formatter = LogFormatter(
 console.setFormatter(formatter)
 TOPIC_CH0 = b"CH0"
 TOPIC_CH1 = b"CH1"
-if RX_TX_SAME_CHANNEL:
-    REF_RX_CH = FREE_TX_CH = 0
-    LOOPBACK_RX_CH = LOOPBACK_TX_CH = 1
-    logger.debug("\nPLL REF-->CH0 RX\nCH1 TX-->CH1 RX\nCH0 TX -->")
-else:
-    LOOPBACK_RX_CH = FREE_TX_CH = 0
-    REF_RX_CH = LOOPBACK_TX_CH = 1
-    logger.debug("\nPLL REF-->CH1 RX\nCH1 TX-->CH0 RX\nCH0 TX -->")
+
+
+LOOPBACK_RX_CH = LOOPBACK_TX_CH = 1
+
+REF_RX_CH = 0
+FREE_TX_CH = 0 # as unused, same channel as REF cable
+
+
+# TX/RX A:  A Antenna
+# RX A:     50ohm terminated
+
+# RX B:     REF
+# TX/RX B:  Antenna
+
+## 1 #### 0 ##
+## B #### A ##
+##############
+##############
+##############
+##############
+##############
+
 
 
 def rx_ref(usrp, rx_streamer, quit_event, duration, result_queue, start_time=None):
