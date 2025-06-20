@@ -751,7 +751,7 @@ def main():
         metrics = result_queue.get()
         PHI_LR = metrics["circ_mean"]
 
-        start_time_val += CAPTURE_TIME  + 10.0
+        start_time_val += CAPTURE_TIME  + 15.0
 
         PHI_CABLE = 0
 
@@ -772,7 +772,6 @@ def main():
 
         PHI_MRT = - (PHI_CABLE + PHI_CSI+ PHI_LR)
         # benchmark without phased beamforming
-        logger.debug(starting_in(usrp, start_time_val))
         tx_phase_coh(
             usrp,
             tx_streamer,
