@@ -269,12 +269,12 @@ def main():
         logger.info("Waiting for SYNC message from sync server...")
         sync_msg = sync_subscriber.recv_string()
         logger.info("Received SYNC message: %s", sync_msg)
+        usrp.set_time_unknown_pps(uhd.types.TimeSpec(0.0))  # RESET TIME = 0
         # =========================
 
         # After synchronization, schedule TX based on current time
-        current_time = get_current_time(usrp)
+        start_time_val = CAPTURE_TIME
         # A short delay (e.g., 0.2s) can be added to ensure TX starts after config
-        start_time_val = current_time + 0.2
         start_time_spec = uhd.types.TimeSpec(start_time_val)
         logger.info("Scheduled TX start time: %.6f", start_time_val)
 

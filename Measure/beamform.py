@@ -7,11 +7,13 @@ import time
 from datetime import datetime, timedelta
 
 import numpy as np
+from Measure import tools
 import uhd
 import yaml
+import zmq
 
 
-import tools
+# import tools
 
 CMD_DELAY = 0.05  # set a 50mS delay in commands
 # default values which will be overwritten by the conf YML
@@ -23,7 +25,6 @@ LOOPBACK_TX_GAIN = 70  # empirical determined
 RX_GAIN = 22  # empirical determined 22 without splitter, 27 with splitter
 CAPTURE_TIME = 10
 FREQ = 0
-# server_ip = "10.128.52.53"
 meas_id = 0
 exp_id = 0
 results = []
@@ -31,7 +32,6 @@ results = []
 SWITCH_LOOPBACK_MODE = 0x00000006  # which is 110
 SWITCH_RESET_MODE = 0x00000000
 
-import zmq
 
 context = zmq.Context()
 
@@ -44,7 +44,7 @@ file_open = False
 server_ip = None  # populated by settings.yml
 
 
-with open(os.path.join(os.path.dirname(__file__), "cal-settings.yml"), "r") as file:
+with open(os.path.join(os.path.dirname(__file__), "cal-settings.yml"), "r", encoding="utf-8") as file:
     vars = yaml.safe_load(file)
     globals().update(vars)  # update the global variables with the vars in yaml
 
@@ -63,7 +63,8 @@ class LogFormatter(logging.Formatter):
     def formatTime(self, record, datefmt=None):
         converter = self.converter(record.created)
         if datefmt:
-            formatted_date = converter.strftime(datefmt)
+            import time
+            formatted_date = time.strftime(datefmt, converter)
         else:
             formatted_date = LogFormatter.pp_now()
         return formatted_date
@@ -86,10 +87,16 @@ TOPIC_CH1 = b"CH1"
 
 
 LOOPBACK_RX_CH = LOOPBACK_TX_CH = 1
+FREE_TX_GAIN = 0 # no gain to be sure
+
 
 REF_RX_CH = 0
 FREE_TX_CH = 0 # as unused, same channel as REF cable
 
+
+PILOT_CH = 1
+REF_CH = REF_RX_CH
+LB_CH = LOOPBACK_RX_CH
 
 # TX/RX A:  A Antenna
 # RX A:     50ohm terminated
@@ -105,14 +112,11 @@ FREE_TX_CH = 0 # as unused, same channel as REF cable
 ##############
 ##############
 
-
-
 def rx_ref(usrp, rx_streamer, quit_event, duration, result_queue, start_time=None):
     # https://files.ettus.com/manual/page_sync.html#sync_phase_cordics
     # The CORDICs are reset at each start-of-burst command, so users should ensure that every start-of-burst also has a time spec set.
-    logger.debug(f"GAIN IS CH0: {usrp.get_rx_gain(0)} CH1: {usrp.get_rx_gain(1)}")
+    logger.debug("GAIN IS CH0: %s CH1: %s", usrp.get_rx_gain(0), usrp.get_rx_gain(1))
 
-    global results
     num_channels = rx_streamer.get_num_channels()
     max_samps_per_packet = rx_streamer.get_max_num_samps()
     buffer_length = int(duration * RATE * 2)
@@ -170,17 +174,8 @@ def rx_ref(usrp, rx_streamer, quit_event, duration, result_queue, start_time=Non
 
         np.save(file_name_state, iq_samples)
 
-        phase_ch0, freq_slope_ch0 = tools.get_phases_and_apply_bandpass(
-            iq_samples[0, :]
-        )
-        phase_ch1, freq_slope_ch1 = tools.get_phases_and_apply_bandpass(
-            iq_samples[1, :]
-        )
-
-        logger.debug("Frequency offset CH0: %.4f", freq_slope_ch0 / (2 * np.pi))
-        logger.debug("Frequency offset CH1: %.4f", freq_slope_ch1 / (2 * np.pi))
-
-        phase_diff = tools.to_min_pi_plus_pi(phase_ch0 - phase_ch1, deg=False)
+        # Compute the phase difference for the file
+        phase_diff = tools.compute_phase_difference(iq_data, RATE)
 
         # phase_diff = phase_ch0 - phase_ch1
 
@@ -340,8 +335,9 @@ def setup(usrp, server_ip, connect=True):
         usrp.set_rx_bandwidth(rx_bw, chan)
         usrp.set_rx_agc(False, chan)
     # specific settings from loopback/REF PLL
+
     usrp.set_tx_gain(LOOPBACK_TX_GAIN, LOOPBACK_TX_CH)
-    usrp.set_tx_gain(LOOPBACK_TX_GAIN, FREE_TX_CH)
+    usrp.set_tx_gain(FREE_TX_GAIN, FREE_TX_CH)
 
     usrp.set_rx_gain(LOOPBACK_RX_GAIN, LOOPBACK_RX_CH)
     usrp.set_rx_gain(REF_RX_GAIN, REF_RX_CH)
@@ -361,13 +357,13 @@ def setup(usrp, server_ip, connect=True):
 
     usrp.set_time_unknown_pps(uhd.types.TimeSpec(0.0))
     logger.debug("[SYNC] Resetting time.")
-    logger.info(f"RX GAIN PROFILE CH0: {usrp.get_rx_gain_names(0)}")
-    logger.info(f"RX GAIN PROFILE CH1: {usrp.get_rx_gain_names(1)}")
+    logger.info("RX GAIN PROFILE CH0: %s", usrp.get_rx_gain_names(0))
+    logger.info("RX GAIN PROFILE CH1: %s", usrp.get_rx_gain_names(1))
     # we wait 2 seconds to ensure a PPS rising edge occurs and latches the 0.000s value to both USRPs.
     time.sleep(2)
     tune_usrp(usrp, FREQ, channels, at_time=begin_time)
     logger.info(
-        f"USRP has been tuned and setup. ({usrp.get_time_now().get_real_secs()})"
+        "USRP has been tuned and setup. (%.6f)", usrp.get_time_now().get_real_secs()
     )
     return tx_streamer, rx_streamer
 
@@ -384,7 +380,7 @@ def rx_thread(usrp, rx_streamer, quit_event, duration, res, start_time=None):
             start_time,
         ),
     )
-    _rx_thread.setName("RX_thread")
+    _rx_thread.name = "RX_thread"
     _rx_thread.start()
     return _rx_thread
 
@@ -418,7 +414,7 @@ def tx_thread(
         args=(usrp, tx_streamer, quit_event, phase, amplitude, start_time),
     )
 
-    tx_thr.setName("TX_thread")
+    tx_thr.name = "TX_thread"
     tx_thr.start()
 
     return tx_thr
@@ -482,7 +478,7 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
 def tx_meta_thread(tx_streamer, quit_event):
     tx_meta_thr = threading.Thread(target=tx_async_th, args=(tx_streamer, quit_event))
 
-    tx_meta_thr.setName("TX_META_thread")
+    tx_meta_thr.name = "TX_META_thread"
     tx_meta_thr.start()
     return tx_meta_thr
 
@@ -501,14 +497,7 @@ def measure_pilot(usrp, rx_streamer, quit_event, result_queue, at_time=None):
 
     logger.debug(starting_in(usrp, at_time))
 
-    usrp.set_rx_antenna("TX/RX", 1)
-
-    # user_settings = usrp.get_user_settings_iface(1)
-
-    # if user_settings:
-    #     user_settings.poke32(0,0x00000003)
-    # else:
-    #     logger.error(" Cannot write to user settings.")
+    usrp.set_rx_antenna("TX/RX", PILOT_CH)
 
     rx_thr = rx_thread(
         usrp,
@@ -526,7 +515,7 @@ def measure_pilot(usrp, rx_streamer, quit_event, result_queue, at_time=None):
     rx_thr.join()
 
     # reset antenna
-    usrp.set_rx_antenna("RX2", 1)
+    usrp.set_rx_antenna("RX2", PILOT_CH)
 
     quit_event.clear()
 
@@ -539,6 +528,9 @@ def measure_loopback(
     # TX
     amplitudes = [0.0, 0.0]
     amplitudes[LOOPBACK_TX_CH] = 0.8
+
+    usrp.set_rx_antenna("RX2", LB_CH)
+    usrp.set_tx_antenna("TX/RX", LB_CH)
 
     start_time = uhd.types.TimeSpec(at_time)
 
@@ -602,7 +594,9 @@ def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr, at_time, long_time=T
     phases[LOOPBACK_TX_CH] = phase_corr
     amplitudes[LOOPBACK_TX_CH] = 0.8
 
-    usrp.set_tx_gain(FREE_TX_GAIN, LOOPBACK_TX_CH)
+    usrp.set_tx_antenna("TX/RX", FREE_TX_CH)
+
+    usrp.set_tx_gain(DL_TX_GAIN, LOOPBACK_TX_CH)
 
     start_time = uhd.types.TimeSpec(at_time)
 
@@ -680,77 +674,102 @@ def main():
     # file_name = f"data_{HOSTNAME}_{unique_id}"
 
     try:
+        # Initialize USRP device
         usrp = uhd.usrp.MultiUSRP(
             "enable_user_regs, fpga=usrp_b210_fpga_loopback_ctrl.bin, mode_n=integer"
         )
         logger.info("Using Device: %s", usrp.get_pp_string())
-        tx_streamer, rx_streamer = setup(usrp, server_ip, connect=True)
+
+        # Hardware setup
+        tx_streamer, rx_streamer = setup(usrp, server_ip, connect=False)
         quit_event = threading.Event()
+        result_queue = queue.Queue()
+
+        # =========================
+        # === Synchronization ===
+        # =========================
+        sync_server_ip = "192.108.1.147"
+        sync_context = zmq.Context()
+        # Create REQ socket for 'alive' signal (port 5558)
+        alive_client = sync_context.socket(zmq.REQ)
+        alive_client.connect(f"tcp://{sync_server_ip}:5558")
+        alive_message = f"{HOSTNAME} RX alive"
+        logger.info("Sending alive message to sync server: %s", alive_message)
+        alive_client.send_string(alive_message)
+        reply = alive_client.recv_string()
+        logger.info("Received alive reply from sync server: %s", reply)
+
+        # Create SUB socket for sync messages (port 5557)
+        sync_subscriber = sync_context.socket(zmq.SUB)
+        sync_subscriber.connect(f"tcp://{sync_server_ip}:5557")
+        sync_subscriber.setsockopt_string(zmq.SUBSCRIBE, "")
+        logger.info("Waiting for SYNC message from sync server...")
+        sync_msg = sync_subscriber.recv_string()
+        logger.info("Received SYNC message: %s", sync_msg)
+        logger.info("Setting device timestamp to 0...")
+        usrp.set_time_unknown_pps(uhd.types.TimeSpec(0.0)) # RESET TIME = 0
+
+        # ==================================
+        # ========= PILOT TIME = 2 =========
+        # ==================================
+        start_time_val = CAPTURE_TIME  + 2.0
+        logger.info("Scheduled RX start time: %.6f", start_time_val)
+
+        measure_pilot(
+            usrp, rx_streamer, quit_event, result_queue, at_time=start_time_val
+        )
+        # phi = result_queue.get()
+        metrics = result_queue.get()
+        circ_mean = metrics["circ_mean"]
+        # mean_val = metrics["mean"]
+        # avg_ampl = metrics["avg_ampl"]  # [ch0, ch1]
+        PHI_PR = circ_mean
+        logger.info("Measured pilot phase: %.6f", PHI_PR)
 
         # STEP 1: Compare loopback with Reference
 
-        margin = 2.0
-
-        cmd_time = CAPTURE_TIME + margin
-
-        start_next_cmd = cmd_time
-
         result_queue = queue.Queue()
 
-        file_name_state = file_name + "_loopback"
-
+        start_time_val += CAPTURE_TIME  + 2.0
         measure_loopback(
             usrp,
             tx_streamer,
             rx_streamer,
             quit_event,
             result_queue,
-            at_time=start_next_cmd,
+            at_time=start_time_val,
         )
 
-        phi_LB = result_queue.get()
+        PHI_LR = result_queue.get()
 
-        start_next_cmd += cmd_time + 2.0
+        start_time_val += CAPTURE_TIME  + 2.0
 
-        phi_cable = 0
+        PHI_CABLE = 0
 
         with open(
-            os.path.join(os.path.dirname(__file__), "config-phase-offsets.yml"), "r"
+            os.path.join(os.path.dirname(__file__), "config-phase-offsets.yml"), "r", encoding="utf-8"
         ) as phases_yaml:
             try:
                 phases_dict = yaml.safe_load(phases_yaml)
                 if HOSTNAME in phases_dict.keys():
-                    phi_cable = phases_dict[HOSTNAME]
-                    logger.debug(f"Applying CABLE phase: {phi_cable}")
+                    PHI_CABLE = phases_dict[HOSTNAME]
+                    logger.debug("Applying CABLE phase: %s", PHI_CABLE)
                 else:
                     logger.error("Phase not found in config-phase-offsets.yml")
             except yaml.YAMLError as exc:
                 print(exc)
 
-        tx_phase = 0
+        PHI_CSI = PHI_PR + PHI_CABLE
 
-        with open(
-            os.path.join(os.path.dirname(__file__), "config-phase-friis-sim2.yml"), "r"
-            # os.path.join(os.path.dirname(__file__), "DLI_precoding.yml"), "r"
-        ) as phases_yaml:
-            try:
-                phases_dict = yaml.safe_load(phases_yaml)
-                if HOSTNAME in phases_dict.keys():
-                    tx_phase = phases_dict[HOSTNAME]
-                    logger.debug(f"Applying TX phase: {tx_phase}")
-                else:
-                    logger.error("Phase not found in config-phase-friis-sim2.yml")
-            except yaml.YAMLError as exc:
-                print(exc)
+        PHI_MRT = - (PHI_CABLE + PHI_CSI+ PHI_LR)
 
         # benchmark without phased beamforming
         tx_phase_coh(
             usrp,
             tx_streamer,
             quit_event,
-            # phase_corr=phi_LB + tx_phase + np.deg2rad(phi_cable),  # does it need to add cable again?
-            phase_corr=phi_LB + tx_phase,  # does it need to add cable again?
-            at_time=start_next_cmd,
+            phase_corr=PHI_MRT,
+            at_time=start_time_val,
             long_time=True,
         )
 
