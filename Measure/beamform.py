@@ -748,7 +748,8 @@ def main():
             usrp,
             tx_streamer,
             quit_event,
-            phase_corr=phi_LB + np.deg2rad(tx_phase) + np.deg2rad(phi_cable),
+            # phase_corr=phi_LB + tx_phase + np.deg2rad(phi_cable),  # does it need to add cable again?
+            phase_corr=phi_LB + tx_phase,  # does it need to add cable again?
             at_time=start_next_cmd,
             long_time=True,
         )

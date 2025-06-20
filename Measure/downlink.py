@@ -62,6 +62,7 @@ def main():
     user = inventory.get("all", {}).get("vars", {}).get("ansible_user", "pi")
     all_hosts = inventory.get("all", {}).get("hosts", {})
 
+    # SCRIPT_REMOTE_PATH = "~/DLI_Validation/Measure/RxCSI_TX_DL.py"
     SCRIPT_REMOTE_PATH = "~/DLI_Validation/Measure/beamform.py"
 
     threads = []
@@ -72,7 +73,7 @@ def main():
             print(f"⚠️ Skipping {host}: no ansible_host")
             continue
         target = f"{user}@{ip}"
-        print(f"🚀 Launching beamform.py on {host} ({target})")
+        print(f"🚀 Launching RxCSI_TX_DL.py on {host} ({target})")
         t = threading.Thread(target=run_remote_script, args=(target, SCRIPT_REMOTE_PATH))
         t.start()
         threads.append(t)
@@ -81,7 +82,7 @@ def main():
     for t in threads:
         t.join()
 
-    print("✅ beamform.py execution on all ceiling hosts completed.")
+    print("✅ RxCSI_TX_DL.py execution on all ceiling hosts completed.")
 
 if __name__ == "__main__":
     main()
