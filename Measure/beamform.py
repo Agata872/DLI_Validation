@@ -751,7 +751,7 @@ def main():
         metrics = result_queue.get()
         PHI_LR = metrics["circ_mean"]
 
-        start_time_val += CAPTURE_TIME  + 2.0
+        start_time_val += CAPTURE_TIME  + 10.0
 
         PHI_CABLE = 0
 
