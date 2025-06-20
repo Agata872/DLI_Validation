@@ -185,7 +185,11 @@ def rx_ref(usrp, rx_streamer, quit_event, duration, result_queue, start_time=Non
 
         logger.debug("Diff cirmean and mean: %.6f", _circ_mean - _mean)
 
-        result_queue.put(_mean)
+        avg_ampl = np.mean(np.abs(iq_samples), axis=1)
+
+        result_queue.put(
+            {"circ_mean": _circ_mean, "mean": _mean, "avg_ampl": avg_ampl.tolist()}
+        )
 
         avg_ampl = np.mean(np.abs(iq_samples), axis=1)
         # var_ampl = np.var(np.abs(iq_samples), axis=1)
@@ -742,7 +746,8 @@ def main():
             at_time=start_time_val,
         )
 
-        PHI_LR = result_queue.get()
+        metrics = result_queue.get()
+        PHI_LR = metrics["circ_mean"]
 
         start_time_val += CAPTURE_TIME  + 10.0
 
