@@ -50,6 +50,7 @@ with open(os.path.join(os.path.dirname(__file__), "cal-settings.yml"), "r", enco
     globals().update(vars)  # update the global variables with the vars in yaml
 
 
+
 # Setup the logger with our custom timestamp formatting
 class LogFormatter(logging.Formatter):
     """Log formatter which prints the timestamp with fractional seconds"""
@@ -358,8 +359,7 @@ def setup(usrp, server_ip, connect=True):
     # this ensures that the FPGA has enough time to clock in the new timespec (otherwise it could be too close to a PPS edge)
     wait_till_go_from_server(server_ip, connect)
     logger.info("Setting device timestamp to 0...")
-    usrp.set_time_unknown_pps(uhd.types.TimeSpec(0.0))
-
+   
     usrp.set_time_unknown_pps(uhd.types.TimeSpec(0.0))
     logger.debug("[SYNC] Resetting time.")
     logger.info("RX GAIN PROFILE CH0: %s", usrp.get_rx_gain_names(0))
@@ -691,30 +691,6 @@ def main():
         tx_streamer, rx_streamer = setup(usrp, server_ip, connect=False)
         quit_event = threading.Event()
         result_queue = queue.Queue()
-
-        # =========================
-        # === Synchronization ===
-        # =========================
-        sync_server_ip = "192.108.1.147"
-        sync_context = zmq.Context()
-        # Create REQ socket for 'alive' signal (port 5558)
-        alive_client = sync_context.socket(zmq.REQ)
-        alive_client.connect(f"tcp://{sync_server_ip}:5558")
-        alive_message = f"{HOSTNAME} RX alive"
-        logger.info("Sending alive message to sync server: %s", alive_message)
-        alive_client.send_string(alive_message)
-        reply = alive_client.recv_string()
-        logger.info("Received alive reply from sync server: %s", reply)
-
-        # Create SUB socket for sync messages (port 5557)
-        sync_subscriber = sync_context.socket(zmq.SUB)
-        sync_subscriber.connect(f"tcp://{sync_server_ip}:5557")
-        sync_subscriber.setsockopt_string(zmq.SUBSCRIBE, "")
-        logger.info("Waiting for SYNC message from sync server...")
-        sync_msg = sync_subscriber.recv_string()
-        logger.info("Received SYNC message: %s", sync_msg)
-        logger.info("Setting device timestamp to 0...")
-        usrp.set_time_unknown_pps(uhd.types.TimeSpec(0.0)) # RESET TIME = 0
 
         # ==================================
         # ========= PILOT TIME = 2 =========
