@@ -62,7 +62,8 @@ def main():
     user = inventory.get("all", {}).get("vars", {}).get("ansible_user", "pi")
     all_hosts = inventory.get("all", {}).get("hosts", {})
 
-    SCRIPT_REMOTE_PATH = "~/DLI_Validation/Measure/RxCSI_TX_DL.py"
+    # SCRIPT_REMOTE_PATH = "~/DLI_Validation/Measure/RxCSI_TX_DL.py"
+    SCRIPT_REMOTE_PATH = "~/DLI_Validation/Measure/beamform.py"
 
     threads = []
     for host in hosts:
