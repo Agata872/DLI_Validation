@@ -738,7 +738,7 @@ def main():
             try:
                 phases_dict = yaml.safe_load(phases_yaml)
                 if HOSTNAME in phases_dict.keys():
-                    PHI_CABLE = phases_dict[HOSTNAME]
+                    PHI_CABLE = np.deg2rad(phases_dict[HOSTNAME])
                     logger.debug("Applying CABLE phase: %s", PHI_CABLE)
                 else:
                     logger.error("Phase not found in config-phase-offsets.yml")
