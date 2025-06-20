@@ -743,7 +743,7 @@ def main():
 
         PHI_LR = result_queue.get()
 
-        start_time_val += CAPTURE_TIME  + 2.0
+        start_time_val += CAPTURE_TIME  + 10.0
 
         PHI_CABLE = 0
 
