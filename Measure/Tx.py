@@ -273,7 +273,7 @@ def main():
         # =========================
 
         # After synchronization, schedule TX based on current time
-        start_time_val = CAPTURE_TIME + 4.0
+        start_time_val = CAPTURE_TIME
         # A short delay (e.g., 0.2s) can be added to ensure TX starts after config
         start_time_spec = uhd.types.TimeSpec(start_time_val)
         logger.info("Scheduled TX start time: %.6f", start_time_val)
@@ -285,7 +285,7 @@ def main():
         tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
 
         # Stop transmission after a certain duration
-        time.sleep(CAPTURE_TIME + 10)
+        time.sleep(CAPTURE_TIME + 20)
         quit_event.set()
         tx_thr.join()
         tx_meta_thr.join()
