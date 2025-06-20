@@ -7,7 +7,7 @@ import time
 from datetime import datetime, timedelta
 
 import numpy as np
-from tools import *
+import tools
 import uhd
 import yaml
 import zmq
