@@ -11,6 +11,7 @@ import tools
 import uhd
 import yaml
 import zmq
+import traceback
 
 
 # import tools
@@ -778,6 +779,7 @@ def main():
     except Exception as e:
         # Interrupt and join the threads
         logger.debug("Sending signal to stop!")
+        print(traceback.format_exc())
         logger.error(e)
         quit_event.set()
     finally:
