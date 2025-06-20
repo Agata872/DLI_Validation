@@ -738,7 +738,7 @@ def main():
 
         result_queue = queue.Queue()
 
-        start_time_val += CAPTURE_TIME  + 2.0
+        start_time_val += CAPTURE_TIME  + 3.0
         measure_loopback(
             usrp,
             tx_streamer,
