@@ -771,8 +771,8 @@ def main():
         PHI_CSI = PHI_PR + PHI_CABLE
 
         PHI_MRT = - (PHI_CABLE + PHI_CSI+ PHI_LR)
-        print("Here !!!")
         # benchmark without phased beamforming
+        logger.debug(starting_in(usrp, start_time_val))
         tx_phase_coh(
             usrp,
             tx_streamer,
