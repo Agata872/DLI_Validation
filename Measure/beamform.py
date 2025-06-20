@@ -714,7 +714,8 @@ def main():
         # ==================================
         start_time_val = CAPTURE_TIME  + 2.0
         logger.info("Scheduled RX start time: %.6f", start_time_val)
-
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        file_name_state = f"{file_name}_{HOSTNAME}_pilot_{timestamp}"
         measure_pilot(
             usrp, rx_streamer, quit_event, result_queue, at_time=start_time_val
         )
