@@ -21,6 +21,7 @@ else:
 host = "*"
 sync_port = "5559"
 alive_port = "5560"
+data_port = "5561"
 
 
 # Creates a socket instance
