@@ -8,9 +8,6 @@ def CSIgenerator2(filename):
     Reads CSI data from a text file and returns:
     - CSI_matrix: NumPy array of complex CSI values (1 per unique AP)
     - unique_APs: List of unique AP names (sorted by first appearance)
-
-    Expected line format:
-    "AP1: Phi_CSI=1.57, avg_ampl=0.93"
     """
 
     with open(filename, 'r') as file:
@@ -50,6 +47,7 @@ def dominant_eigenvector(X):
 
 # %%
 def sdr_solver(H_DL, H_BD, M, scale, alpha, P_max):
+    # For the given channel coefficients, solve the proposed problem and provide proposed BF vector
     # Compute M_BD and M_DL
     M_BD = H_BD.conj().T @ H_BD
     M_DL = H_DL.conj().T @ H_DL
@@ -72,7 +70,7 @@ def sdr_solver(H_DL, H_BD, M, scale, alpha, P_max):
     
     # Problem definition and solve
     prob = cp.Problem(objective, constraints)
-    prob.solve(solver=cp.SCS, verbose=False)  # You can try other solvers, e.g., 'CVXOPT' or 'MOSEK'
+    prob.solve(solver=cp.SCS, verbose=False)  # You can try other solvers, e.g., 'CVXOPT' or 'MOSEK' or 'SCS'
     
     if X_new.value is None:
         raise ValueError("Optimization did not converge.")
@@ -82,15 +80,6 @@ def sdr_solver(H_DL, H_BD, M, scale, alpha, P_max):
     
     # Normalize the beamforming vector
     w = w_optimum / np.linalg.norm(w_optimum)
-    
-    # print(f"\nCVX Solution for alpha = {alpha}")
-    
-    # # Compute constraint and objective values
-    # const = (np.linalg.norm(H_DL @ w) / np.linalg.norm(H_BD @ w))**2
-    # obj = (np.linalg.norm(H_BD @ w))**2
-    
-    # print(f"Prop.: Constraint is {const:.9f}")
-    # print(f"Prop.: Objective is {obj:.9f}\n")
     
     return w
 
@@ -104,7 +93,42 @@ def compute_bf_phases(
     file_reader: str,
     write_output: bool = False
 ):
-    # Read the channel data
+     # Computes beamforming (BF) phases for a given channel setup.
+    
+     # Parameters:
+     # -----------
+     # bf_type : str
+     #     Type of beamforming to use. Options:
+     #         - 'cvx': Optimal beamforming using a convex optimization solver.
+     #         - 'mrt': Maximum Ratio Transmission beamforming.
+     
+     # alpha : float
+     #     Weighting parameter for the optimization (used in CVX solver).
+    
+     # scale : float
+     #     Scaling factor used in the optimization objective (for CVX).
+    
+     # f_c : float
+     #     Carrier frequency in Hz, used to compute wavelength.
+    
+     # file_bd : str
+     #     Path to the file containing the backscatter device (BD) channel data.
+    
+     # file_reader : str
+     #     Path to the file containing the reader (downlink) channel data.
+    
+     # write_output : bool, optional
+     #     If True, writes the resulting beamforming phases to a text file.
+     #     Default is False.
+    
+     # Returns:
+     # --------
+     # w_angle : np.ndarray
+     #     Beamforming phases (in radians) for each AP (Access Point).
+    
+     # unique_APs : list
+     #     List of identifiers for each AP, corresponding to the beamforming phases.   
+   # Read the channel data
    h_C, unique_APs = CSIgenerator2(file_bd)
    H_DL, _ = CSIgenerator2(file_reader)
 
@@ -160,76 +184,10 @@ def compute_bf_phases(
 
 phases, AP_list = compute_bf_phases(
     bf_type='cvx',
-    alpha=0,
+    alpha=10,
     scale=1e1,
     f_c=0.92e9,
     file_bd='Processed_Result_BD.txt',
     file_reader='Processed_Result_Reader.txt',
     write_output=True
 )
-
-
-
-# # %% Read the channel data
-
-# h_C, unique_APs = CSIgenerator2('Processed_Result_BD.txt')
-# H_DL, unique_APs = CSIgenerator2('Processed_Result_Reader.txt')
-
-# # If H_DL is not a row vector, transpose it
-# if H_DL.shape[0] != 1:
-#     H_DL = H_DL.T
-    
-# # Constants
-# f_c = 0.92e9       # Hz
-# c = 3e8            # Speed of light in m/s
-# _lambda = c / f_c  # Wavelength
-
-# # Distance and channel
-# distance = 1
-# h_R = _lambda / (4 * np.pi * distance)
-# h_R = np.array([h_R])[:, np.newaxis]
-
-# # Channels
-# H_BD = h_R * h_C.T
-
-# # Dimensions
-# M = len(h_C)  # or h_C.shape[0]
-# N = len(h_R)         # h_R is scalar
-
-
-# # %% Parameters
-# P_max = 1
-# scale = 1e2
-# alpha = 0
-
-# # %% Proposed Method - CVX (MOSEK)
-# w_cvx = sdr_solver(H_DL, H_BD, M, scale, alpha, P_max)
-
-# # %% Benchmark - MRT
-
-# w_mrt = np.conj(h_C) / np.abs(h_C)
-# w_mrt = w_mrt / np.linalg.norm(w_mrt)
-
-# # Compute constraint and objective values
-# const_mrt = (np.linalg.norm(H_DL @ w_mrt) / np.linalg.norm(H_BD @ w_mrt))**2
-# obj_mrt = (np.linalg.norm(H_BD @ w_mrt))**2
-   
-# print(f"MRT: Constraint is {const_mrt:.9f}")
-# print(f"MRT: Objective is {obj_mrt:.9f}\n")
-
-# # %%
-
-# w_cvx_angle = np.angle(w_cvx);
-# w_mrt_angle = np.angle(w_mrt);
-
-
-# # Write Proposed_BF.txt
-# with open('Proposed_BF.txt', 'w') as f:
-#     for name, angle in zip(unique_APs, w_cvx_angle):
-#         f.write(f'{name}: {angle.item():.8f}\n')
-
-# # Write MRT_BF.txt
-# with open('MRT_BF.txt', 'w') as f:
-#     for name, angle in zip(unique_APs, w_mrt_angle):
-#         f.write(f'{name}: {angle.item():.8f}\n')
-
