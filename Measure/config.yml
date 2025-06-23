@@ -150,6 +150,6 @@ scope:
   - timestamp
   - dbm
   enabled: true
-  ip: 192.108.0.251
+  ip: 192.108.1.219
   rbw_hz: 20.0
   span_hz: 10000.0
