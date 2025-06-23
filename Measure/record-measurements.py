@@ -71,7 +71,7 @@ try:
     while True:
         plt = TechtilePlotter(realtime=True)
         meas_id, unique_id = wait_till_go_from_server()
-        sleep(29.0)  # wake-up 10 seconds before rover starts to move
+        sleep(40.0)  # wake-up 10 seconds before rover starts to move
 
         # start to measure for XX long
         start = time()
