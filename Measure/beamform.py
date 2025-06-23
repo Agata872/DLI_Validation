@@ -728,7 +728,7 @@ def main():
         metrics = result_queue.get()
         PHI_LR = metrics["circ_mean"]
 
-        start_time_val = 51
+        start_time_val = 55
         logger.info("Scheduled downlink start time: %.6f", start_time_val)
         PHI_CABLE = 0
 
