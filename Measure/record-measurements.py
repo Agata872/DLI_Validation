@@ -30,7 +30,7 @@ context = zmq.Context()
 
 iq_socket = context.socket(zmq.PUB)
 
-iq_socket.bind(f"tcp://*:{50001}")
+iq_socket.bind(f"tcp://*:{50002}")
 
 
 def wait_till_go_from_server(ip="10.128.52.53"):
