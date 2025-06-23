@@ -273,7 +273,7 @@ def main():
         # =========================
 
         # After synchronization, schedule TX based on current time
-        start_time_val = CAPTURE_TIME
+        start_time_val = CAPTURE_TIME -5.0
         # A short delay (e.g., 0.2s) can be added to ensure TX starts after config
         start_time_spec = uhd.types.TimeSpec(start_time_val)
         logger.info("Scheduled TX start time: %.6f", start_time_val)
