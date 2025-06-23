@@ -29,7 +29,7 @@ def run_check_and_kill(target, user):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
-            timeout=5
+            timeout=7
         )
 
         if result.stdout.strip():
