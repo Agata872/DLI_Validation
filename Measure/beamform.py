@@ -715,7 +715,7 @@ def main():
 
         result_queue = queue.Queue()
 
-        start_time_val = CAPTURE_TIME + 15.0
+        start_time_val = 25.0
         start_time_spec = uhd.types.TimeSpec(start_time_val)
         logger.info("Scheduled LOOPBACK start time: %.6f", start_time_val)
         measure_loopback(
@@ -730,7 +730,7 @@ def main():
         metrics = result_queue.get()
         PHI_LR = metrics["circ_mean"]
 
-        start_time_val = CAPTURE_TIME + 20.0
+        start_time_val = 30
         start_time_pre = uhd.types.TimeSpec(start_time_val)
         logger.info("Scheduled downlink start time: %.6f", start_time_pre)
         PHI_CABLE = 0
