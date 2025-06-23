@@ -702,7 +702,7 @@ def main():
         real_start_time = CAPTURE_TIME + 2.0
         start_time_spec = uhd.types.TimeSpec(real_start_time)
         measure_pilot(
-            usrp, rx_streamer, quit_event, result_queue, at_time=start_time_spec
+            usrp, rx_streamer, quit_event, result_queue, at_time=start_time_val
         )
         # phi = result_queue.get()
         metrics = result_queue.get()
