@@ -19,9 +19,8 @@ else:
     num_subscribers = 1
 
 host = "*"
-sync_port = "5557"
-alive_port = "5558"
-data_port = "5559"
+sync_port = "5559"
+alive_port = "5560"
 
 
 # Creates a socket instance
