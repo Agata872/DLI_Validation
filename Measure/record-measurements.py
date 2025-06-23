@@ -66,9 +66,11 @@ positioner.start()
 
 counter = 0
 
+plt = TechtilePlotter(realtime=True)
+
 try:
     while True:
-        plt = TechtilePlotter(realtime=True)
+
         # meas_id, unique_id = wait_till_go_from_server()
         sleep(1.0)  # wake-up 10 seconds before rover starts to move
 
