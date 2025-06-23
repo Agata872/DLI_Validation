@@ -18,7 +18,7 @@ server_dir = os.path.dirname(os.path.abspath(__file__))
 
 config = read_yaml_file("config.yml")
 scope = Scope(config=config["scope"])
-positioner = PositionerClient(config=config["positioning"], backend="zmq")
+positioner = PositionerClient(config=config["positioning"], backend="direct")
 
 
 positioner.start()
