@@ -534,8 +534,8 @@ def measure_loopback(
     amplitudes = [0.0, 0.0]
     amplitudes[LOOPBACK_TX_CH] = 0.8
 
-    usrp.set_rx_antenna("RX2", LB_CH)
-    usrp.set_tx_antenna("TX/RX", LB_CH)
+    # usrp.set_rx_antenna("RX2", LB_CH)
+    # usrp.set_tx_antenna("TX/RX", LB_CH)
 
     start_time = uhd.types.TimeSpec(at_time)
 
@@ -599,7 +599,7 @@ def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr, at_time, long_time=T
     phases[LOOPBACK_TX_CH] = phase_corr
     amplitudes[LOOPBACK_TX_CH] = 0.8
 
-    usrp.set_tx_antenna("TX/RX", FREE_TX_CH)
+    # usrp.set_tx_antenna("TX/RX", FREE_TX_CH)
 
     usrp.set_tx_gain(DL_TX_GAIN, LOOPBACK_TX_CH)
 
