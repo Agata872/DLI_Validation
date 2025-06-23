@@ -756,7 +756,7 @@ def main():
             tx_streamer,
             quit_event,
             phase_corr=PHI_MRT,
-            at_time=30.0,
+            at_time=45.0,
             long_time=True,
         )
 
