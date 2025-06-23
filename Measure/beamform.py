@@ -699,9 +699,8 @@ def main():
         logger.info("Scheduled RX start time: %.6f", start_time_val)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         file_name_state = f"{file_name}_{HOSTNAME}_pilot_{timestamp}"
-        start_time_spec = uhd.types.TimeSpec(start_time_val)
         measure_pilot(
-            usrp, rx_streamer, quit_event, result_queue, at_time=start_time_spec
+            usrp, rx_streamer, quit_event, result_queue, at_time=start_time_val
         )
         # phi = result_queue.get()
         metrics = result_queue.get()
@@ -716,7 +715,6 @@ def main():
         result_queue = queue.Queue()
 
         start_time_val = 25.0
-        start_time_spec = uhd.types.TimeSpec(start_time_val)
         logger.info("Scheduled LOOPBACK start time: %.6f", start_time_val)
         measure_loopback(
             usrp,
@@ -724,15 +722,14 @@ def main():
             rx_streamer,
             quit_event,
             result_queue,
-            at_time=start_time_spec,
+            at_time=start_time_val,
         )
 
         metrics = result_queue.get()
         PHI_LR = metrics["circ_mean"]
 
         start_time_val = 30
-        start_time_pre = uhd.types.TimeSpec(start_time_val)
-        logger.info("Scheduled downlink start time: %.6f", start_time_pre)
+        logger.info("Scheduled downlink start time: %.6f", start_time_val)
         PHI_CABLE = 0
 
         with open(
@@ -759,7 +756,7 @@ def main():
             tx_streamer,
             quit_event,
             phase_corr=PHI_MRT,
-            at_time=start_time_pre,
+            at_time=30.0,
             long_time=True,
         )
 
