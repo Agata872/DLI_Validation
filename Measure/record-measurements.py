@@ -36,6 +36,14 @@ iq_socket.bind(f"tcp://*:{50002}")
 def wait_till_go_from_server(ip="192.108.1.147"):
 
     global meas_id, file_open, data_file, file_name
+    context = zmq.Context()
+    alive_socket = context.socket(zmq.REQ)
+    alive_socket.connect("tcp://192.108.1.147:5558")  # <== IP 是服务器那台的
+
+    # 向服务器发就绪消息
+    alive_socket.send_string("client_ready")
+    response = alive_socket.recv_string()
+    print("Server response:", response)
     # Connect to the publisher's address
     print("Connecting to server %s.", ip)
     sync_socket = context.socket(zmq.SUB)
