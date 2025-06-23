@@ -33,7 +33,7 @@ iq_socket = context.socket(zmq.PUB)
 iq_socket.bind(f"tcp://*:{50002}")
 
 
-def wait_till_go_from_server(ip="10.128.52.53"):
+def wait_till_go_from_server(ip="192.108.1.147"):
 
     global meas_id, file_open, data_file, file_name
     # Connect to the publisher's address
