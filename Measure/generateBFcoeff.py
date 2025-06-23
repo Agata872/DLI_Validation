@@ -184,7 +184,7 @@ def compute_bf_phases(
 
 phases, AP_list = compute_bf_phases(
     bf_type='cvx',
-    alpha=10,
+    alpha=0,
     scale=1e1,
     f_c=0.92e9,
     file_bd='Processed_Result_BD.txt',
