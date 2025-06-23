@@ -699,7 +699,7 @@ def main():
         logger.info("Scheduled RX start time: %.6f", start_time_val)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         file_name_state = f"{file_name}_{HOSTNAME}_pilot_{timestamp}"
-        real_start_time = CAPTURE_TIME + 2.0
+        real_start_time = CAPTURE_TIME + 5.0
         start_time_spec = uhd.types.TimeSpec(real_start_time)
         measure_pilot(
             usrp, rx_streamer, quit_event, result_queue, at_time=start_time_val
@@ -731,7 +731,7 @@ def main():
         metrics = result_queue.get()
         PHI_LR = metrics["circ_mean"]
 
-        start_time_val = CAPTURE_TIME + 20.0
+        start_time_val = CAPTURE_TIME + 15.0
         start_time_pre = uhd.types.TimeSpec(start_time_val)
         logger.info("Scheduled downlink start time: %.6f", start_time_pre)
         PHI_CABLE = 0
