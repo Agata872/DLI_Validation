@@ -716,7 +716,7 @@ def main():
 
         result_queue = queue.Queue()
 
-        start_time_val = CAPTURE_TIME + 7.0
+        start_time_val = CAPTURE_TIME + 10.0
         start_time_spec = uhd.types.TimeSpec(start_time_val)
         logger.info("Scheduled LOOPBACK start time: %.6f", start_time_val)
         measure_loopback(
