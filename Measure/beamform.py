@@ -714,7 +714,7 @@ def main():
 
         result_queue = queue.Queue()
 
-        start_time_val = 25.0
+        start_time_val = 28.0
         logger.info("Scheduled LOOPBACK start time: %.6f", start_time_val)
         measure_loopback(
             usrp,
@@ -728,7 +728,7 @@ def main():
         metrics = result_queue.get()
         PHI_LR = metrics["circ_mean"]
 
-        start_time_val = 45
+        start_time_val = 48
         logger.info("Scheduled downlink start time: %.6f", start_time_val)
         PHI_CABLE = 0
 
