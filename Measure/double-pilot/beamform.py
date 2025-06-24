@@ -204,11 +204,7 @@ def rx_channels(usrp, rx_streamer, quit_event, duration, result_queue, start_tim
             avg_ampl[1],
         )
 
-        logger.debug(
-            "VAR PHASE IQ CH0: %.6f CH1: %.6f",
-            var_phase[0],
-            var_phase[1],
-        )
+        logger.debug("VAR PHASE IQ CH1-CH0: %.6f ", var_phase)
 
 
 def setup_clock(usrp, clock_src, num_mboards):
