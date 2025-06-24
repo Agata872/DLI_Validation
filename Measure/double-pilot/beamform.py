@@ -809,7 +809,7 @@ def main():
         )
 
         print("DONE")
-    except (RuntimeError, OSError) as e:
+    except Exception as e:
         # Interrupt and join the threads
         logger.debug("Sending signal to stop!")
         print(traceback.format_exc())
