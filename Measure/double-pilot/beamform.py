@@ -176,7 +176,11 @@ def rx_channels(usrp, rx_streamer, quit_event, duration, result_queue, start_tim
         avg_ampl = np.mean(np.abs(iq_samples), axis=1)
 
         result_queue.put(
-            {"circ_mean": _circ_mean, "mean": _mean, "avg_ampl": avg_ampl.tolist()}
+            {
+                "circ_mean": _circ_mean,
+                "mean": _mean,
+                "avg_ampl": avg_ampl.tolist()[PILOT_RX_CH],
+            }
         )
 
         avg_ampl = np.mean(np.abs(iq_samples), axis=1)
