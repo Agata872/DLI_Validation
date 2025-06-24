@@ -75,6 +75,10 @@ console.setFormatter(formatter)
 TOPIC_CH0 = b"CH0"
 TOPIC_CH1 = b"CH1"
 
+# File handler (overwrite mode)
+file_handler = logging.FileHandler("log.txt", mode="w")  # Overwrite log.txt
+logger.addHandler(file_handler)
+file_handler.setFormatter(formatter)
 
 def rx_channels(usrp, rx_streamer, quit_event, duration, result_queue, start_time=None):
     """
