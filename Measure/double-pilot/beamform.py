@@ -799,7 +799,7 @@ def main():
             except yaml.YAMLError as exc:
                 print(exc)
 
-        PHI_CSI = PHI_PR_1 #+ PHI_CABLE
+        PHI_CSI = PHI_PR_1 - PHI_CABLE #+ PHI_CABLE
 
         PHI_MRT = -(PHI_CSI + PHI_LR - PHI_CABLE)  # + PHI_CABLE
 
