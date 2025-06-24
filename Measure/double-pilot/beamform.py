@@ -749,7 +749,7 @@ def main():
         # ==================================
 
         logger.info("Scheduled P1 RX start time: %.6f", START_P1_RX)
-        measure_pilot(usrp, rx_streamer, quit_event, result_queue, at_time=START_P1_RX)
+        measure_pilot(usrp, rx_streamer, quit_event, result_queue, at_time=START_P1_RX, stop_time=STOP_P1_TX)
         # phi = result_queue.get()
         metrics = result_queue.get()
         circ_mean = metrics["circ_mean"]
@@ -763,7 +763,7 @@ def main():
         # ==================================
 
         logger.info("Scheduled P2 RX start time: %.6f", START_P2_RX)
-        measure_pilot(usrp, rx_streamer, quit_event, result_queue, at_time=START_P2_RX)
+        measure_pilot(usrp, rx_streamer, quit_event, result_queue, at_time=START_P2_RX, stop_time=STOP_P2_TX)
         # phi = result_queue.get()
         metrics = result_queue.get()
         circ_mean = metrics["circ_mean"]
