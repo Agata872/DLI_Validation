@@ -1,0 +1,96 @@
+CLOCK_TIMEOUT: 1000  # 1000mS timeout for external clock locking
+INIT_DELAY: 0.2  # 200ms initial delay before transmit
+
+################## 
+# SERVER  CONF ###
+################## 
+SERVER_IP: "192.108.1.147"
+
+
+################## 
+#### RF  CONF ####
+################## 
+
+FREQ: 920e6
+RATE: 250e3
+
+
+################## 
+## RF CHAIN CONF #
+################## 
+
+############## GAINS ##############
+LOOPBACK_RX_GAIN: 45 #23  # empirical determined
+LOOPBACK_TX_GAIN: 50 
+
+REF_RX_GAIN: 45 # SHOULD BE THE SAME AS LOOPBACK RX
+BF_TX_GAIN: 70
+
+FREE_TX_GAIN: 0  # no gain to be sure
+
+PILOT_TX_GAIN: 70
+
+
+############## CHANNELS AND ANTENNAS ##############
+# no need to define antenna is this is done manually in the USRP
+LOOPBACK_RX_CH: 1 
+LOOPBACK_TX_CH: 1
+
+
+REF_RX_CH: 0
+REF_RX_ANT: "RX2"
+
+PILOT_TX_CH: 1
+PILOT_TX_ANT: "TX/RX"
+PILOT_RX_CH: 1
+PILOT_RX_ANT: "TX/RX"
+
+BF_TX_CH: 1
+BF_TX_ANT: "TX/RX"
+
+
+FREE_TX_CH: 0  # as unused, same channel as REF cable
+
+# TX/RX A:  A Antenna
+# RX A:     50ohm terminated
+
+# RX B:     REF
+# TX/RX B:  Antenna
+
+## 1 #### 0 ##
+## B #### A ##
+##############
+##############
+##############
+##############
+##############
+
+
+################## 
+# FRAME SCHEDULE #
+################## 
+
+START_TUNE: 3
+CAPTURE_TIME: 10  # seconds to capture the data USED FOR BUFFER LENGTH
+
+# Loopback
+START_LB: 5
+STOP_LB: 15
+
+# PILOT 1
+START_P1_TX: 20
+STOP_P1_TX: 35
+
+START_P1_RX: 22
+STOP_P1_RX: 30
+
+# Pilot 2
+START_P2_TX: 40
+STOP_P2_TX: 55
+
+START_P2_RX: 42
+STOP_P2_RX: 50
+
+# BF
+START_BF: 60
+STOP_BF: 7200
