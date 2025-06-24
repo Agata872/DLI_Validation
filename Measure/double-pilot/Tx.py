@@ -136,7 +136,9 @@ def setup(usrp):
         usrp.set_rx_bandwidth(rx_bw, chan)
         usrp.set_rx_agc(False, chan)
     # TX-side settings: use the specified TX channel (based on RX_TX_SAME_CHANNEL, signal is transmitted on FREE_TX_CH)
-    usrp.set_tx_gain(PILOT_TX_CH, PILOT_TX_GAIN)
+    usrp.set_tx_gain(
+        PILOT_TX_GAIN, PILOT_TX_CH
+    )
 
     st_args = uhd.usrp.StreamArgs("fc32", "sc16")
     st_args.channels = channels
