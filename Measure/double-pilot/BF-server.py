@@ -55,6 +55,7 @@ with open(output_path, "w") as f:
             socks = dict(poller.poll(1000))
             if alive_socket in socks and socks[alive_socket] == zmq.POLLIN:
                 msg_json = alive_socket.recv_json()
+                print(f"Received message: {msg_json}")
                 hostname = msg_json.get("host")
                 csi_ampl = float(msg_json.get("csi_ampl", 0.0))
                 csi_phase = float(msg_json.get("csi_phase", 0.0))
