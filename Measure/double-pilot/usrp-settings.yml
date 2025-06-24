@@ -1,4 +1,4 @@
-CLOCK_TIMEOUT: 1000  # 1000mS timeout for external clock locking
+CLOCK_TIMEOUT: 1000.0  # 1000mS timeout for external clock locking
 INIT_DELAY: 0.2  # 200ms initial delay before transmit
 
 ################## 
@@ -11,8 +11,8 @@ SERVER_IP: "192.108.1.147"
 #### RF  CONF ####
 ################## 
 
-FREQ: 920e6
-RATE: 250e3
+FREQ: !!float 920e6
+RATE: !!float 250e3
 
 
 ################## 
