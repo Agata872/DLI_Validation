@@ -180,7 +180,7 @@ def rx_channels(usrp, rx_streamer, quit_event, duration, result_queue, start_tim
         )
 
         avg_ampl = np.mean(np.abs(iq_samples), axis=1)
-        # var_ampl = np.var(np.abs(iq_samples), axis=1)
+        var_ampl = np.var(np.abs(iq_samples), axis=1)
 
         max_I = np.max(np.abs(np.real(iq_samples)), axis=1)
         max_Q = np.max(np.abs(np.imag(iq_samples)), axis=1)
@@ -197,6 +197,12 @@ def rx_channels(usrp, rx_streamer, quit_event, duration, result_queue, start_tim
             "AVG AMPL IQ CH0: %.6f CH1: %.6f",
             avg_ampl[0],
             avg_ampl[1],
+        )
+
+        logger.debug(
+            "VAR AMPL IQ CH0: %.6f CH1: %.6f",
+            var_ampl[0],
+            var_ampl[1],
         )
 
 
@@ -793,10 +799,10 @@ def main():
         # phi = result_queue.get()
         metrics = result_queue.get()
         circ_mean = metrics["circ_mean"]
-        mean_val = metrics["mean"]
-        # avg_ampl = metrics["avg_ampl"]  # [ch0, ch1]
+        # mean_val = metrics["mean"]
+        avg_ampl = metrics["avg_ampl"]  # [ch0, ch1]
         PHI_PR_1 = circ_mean
-        AMP_PR_1 = mean_val
+        AMP_PR_1 = avg_ampl
         logger.info("Measured pilot phase: %.6f", PHI_PR_1)
 
         # ==================================
@@ -808,7 +814,7 @@ def main():
         # phi = result_queue.get()
         metrics = result_queue.get()
         circ_mean = metrics["circ_mean"]
-        mean_val = metrics["mean"]
+        # mean_val = metrics["mean"]
         # avg_ampl = metrics["avg_ampl"]  # [ch0, ch1]
         PHI_PR_2 = circ_mean
         logger.info("Measured pilot phase: %.6f", PHI_PR_2)
