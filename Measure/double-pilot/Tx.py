@@ -276,7 +276,7 @@ def main():
         tx_meta_thr.join()
 
         logger.info("TX script finished successfully.")
-    except (uhd.usrp.UsrpError, zmq.ZMQError, OSError, ValueError) as e:
+    except Exception as e:
         logger.error("Error encountered in TX script: %s", e)
         sys.exit(1)
     finally:
