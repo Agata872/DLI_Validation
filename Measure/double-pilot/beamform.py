@@ -801,7 +801,7 @@ def main():
 
         PHI_CSI = PHI_PR_1
 
-        PHI_MRT = -(PHI_CSI + PHI_LR)
+        PHI_MRT = -(PHI_CSI + PHI_LR + PHI_CABLE)
 
         # PHI_DLI =
         # benchmark without phased beamforming
