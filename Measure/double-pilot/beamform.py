@@ -837,7 +837,7 @@ def main():
         PHI_CSI = PHI_PR_1 + PHI_CABLE #+ PHI_CABLE
         bf = get_BF(SERVER_IP, AMP_PR_1 , PHI_CSI)
 
-        logger.debug("BF result: %s", np.angle(bf))
+        logger.debug("BF result: %s (expected) %s (from server)", -PHI_CSI, np.angle(bf))
 
         PHI_MRT = np.angle(bf) - (PHI_LR + PHI_CABLE)  # + PHI_CABLE
 
