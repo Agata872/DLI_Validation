@@ -66,8 +66,8 @@ def main():
         sys.exit(1)
     tx_target = f"{global_user}@{tx_ip}"
 
-    TX_SCRIPT_PATH = "~/DLI_Validation/Measure/Tx.py"
-    RX_SCRIPT_PATH = "~/DLI_Validation/Measure/beamform.py"
+    TX_SCRIPT_PATH = "~/DLI_Validation/Measure/double-pilot/Tx.py"
+    RX_SCRIPT_PATH = "~/DLI_Validation/Measure/double-pilot/beamform.py"
 
     threads = []
     processes = []
