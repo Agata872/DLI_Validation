@@ -714,9 +714,10 @@ def main():
 
     try:
         # Initialize USRP device
-        usrp = uhd.usrp.MultiUSRP(
-            "enable_user_regs, fpga=usrp_b210_fpga_loopback_ctrl.bin, mode_n=integer"
-        )
+
+        fpga_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "usrp_b210_fpga_loopback_ctrl.bin")
+
+        usrp = uhd.usrp.MultiUSRP(f"enable_user_regs, fpga={fpga_path}, mode_n=integer")
         logger.info("Using Device: %s", usrp.get_pp_string())
 
         # Hardware setup
