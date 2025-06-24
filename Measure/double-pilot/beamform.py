@@ -330,6 +330,37 @@ def wait_till_go_from_server(ip, _connect=True):
     sync_socket.close()
 
 
+def get_BF(ip, csi: complex) -> complex:
+    import json
+
+
+    logger.debug("Connecting to server %s.", ip)
+
+    socket = context.socket(zmq.REQ)
+    socket.connect(f"tcp://{ip}:{5559}")
+
+    logger.debug("Sending CSI")
+
+    # Create a message dict with CSI (complex split into real and imag)
+    msg = {"host": HOSTNAME, "csi_real": csi.real, "csi_imag": csi.imag}
+
+    # Serialize to JSON and send
+    socket.send_string(json.dumps(msg))
+    logger.debug("Message sent, waiting for response...")
+
+    # Receive response and parse
+    response_json = socket.recv_string()
+    response = json.loads(response_json)
+
+    socket.close()
+
+    # Reconstruct complex number
+    result = complex(response["real"], response["imag"])
+    logger.debug("Received response: %s", result)
+
+    return result
+
+
 def setup(usrp, server_ip, connect=True):
     rate = RATE
     mcr = 20e6
@@ -800,8 +831,9 @@ def main():
                 print(exc)
 
         PHI_CSI = PHI_PR_1 + PHI_CABLE #+ PHI_CABLE
+        bf = get_BF(SERVER_IP, PHI_CSI)
 
-        PHI_MRT = -(PHI_CSI + PHI_LR + PHI_CABLE)  # + PHI_CABLE
+        PHI_MRT = np.angle(bf) - (PHI_LR + PHI_CABLE)  # + PHI_CABLE
 
         # PHI_DLI =
         # benchmark without phased beamforming
