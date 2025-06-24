@@ -75,7 +75,7 @@ def main():
     def run_and_store(target, path):
         """Wrap run_remote_script and store Popen process"""
         remote_cmd = (
-            'cd ~/DLI_Validation/Measure && '
+            'cd ~/DLI_Validation/Measure/double-pilot && '
             'export PYTHONPATH="/usr/local/lib/python3/dist-packages:$PYTHONPATH"; '
             f'python3 -u {path}'
         )
