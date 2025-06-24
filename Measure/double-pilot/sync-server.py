@@ -16,7 +16,7 @@ if len(sys.argv) > 1:
     num_subscribers = int(sys.argv[2])
 else:
     delay = 5
-    num_subscribers = 38
+    num_subscribers = 35
 
 host = "*"
 sync_port = "5557"
@@ -51,7 +51,7 @@ poller = zmq.Poller()
 poller.register(alive_socket, zmq.POLLIN)
 
 new_msg_received = 0
-WAIT_TIMEOUT = 60.0*10.0
+WAIT_TIMEOUT = 10*1000
 
 print(f"Starting experiment: {unique_id}")
 # 确保 data 文件夹存在
