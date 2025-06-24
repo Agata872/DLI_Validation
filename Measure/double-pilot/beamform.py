@@ -790,9 +790,10 @@ def main():
         # phi = result_queue.get()
         metrics = result_queue.get()
         circ_mean = metrics["circ_mean"]
-        # mean_val = metrics["mean"]
+        mean_val = metrics["mean"]
         # avg_ampl = metrics["avg_ampl"]  # [ch0, ch1]
         PHI_PR_1 = circ_mean
+        AMP_PR_1 = mean_val
         logger.info("Measured pilot phase: %.6f", PHI_PR_1)
 
         # ==================================
@@ -804,7 +805,7 @@ def main():
         # phi = result_queue.get()
         metrics = result_queue.get()
         circ_mean = metrics["circ_mean"]
-        # mean_val = metrics["mean"]
+        mean_val = metrics["mean"]
         # avg_ampl = metrics["avg_ampl"]  # [ch0, ch1]
         PHI_PR_2 = circ_mean
         logger.info("Measured pilot phase: %.6f", PHI_PR_2)
@@ -831,7 +832,7 @@ def main():
                 print(exc)
 
         PHI_CSI = PHI_PR_1 + PHI_CABLE #+ PHI_CABLE
-        bf = get_BF(SERVER_IP, PHI_CSI)
+        bf = get_BF(SERVER_IP, mean_val * np.exp(1j*PHI_CSI))
 
         PHI_MRT = np.angle(bf) - (PHI_LR + PHI_CABLE)  # + PHI_CABLE
 
