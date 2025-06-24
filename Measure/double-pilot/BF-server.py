@@ -56,8 +56,8 @@ with open(output_path, "w") as f:
             if alive_socket in socks and socks[alive_socket] == zmq.POLLIN:
                 msg_json = alive_socket.recv_json()
                 hostname = msg_json.get("host")
-                csi_ampl = msg_json.get("csi_ampl", 0.0)
-                csi_phase = msg_json.get("csi_phase", 0.0)
+                csi_ampl = float(msg_json.get("csi_ampl", 0.0))
+                csi_phase = float(msg_json.get("csi_phase", 0.0))
                 csi_value = csi_ampl * np.exp(1j * csi_phase)
 
                 hostnames.append(hostname)
