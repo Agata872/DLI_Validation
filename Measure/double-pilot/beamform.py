@@ -330,9 +330,8 @@ def wait_till_go_from_server(ip, _connect=True):
     sync_socket.close()
 
 
-def get_BF(ip, csi: complex) -> complex:
+def get_BF(ip, ampl, phase) -> complex:
     import json
-
 
     logger.debug("Connecting to server %s.", ip)
 
@@ -342,7 +341,7 @@ def get_BF(ip, csi: complex) -> complex:
     logger.debug("Sending CSI")
 
     # Create a message dict with CSI (complex split into real and imag)
-    msg = {"host": HOSTNAME, "csi_real": csi.real, "csi_imag": csi.imag}
+    msg = {"host": HOSTNAME, "csi_ampl": ampl, "csi_phase": phase}
 
     # Serialize to JSON and send
     socket.send_string(json.dumps(msg))
@@ -832,7 +831,9 @@ def main():
                 print(exc)
 
         PHI_CSI = PHI_PR_1 + PHI_CABLE #+ PHI_CABLE
-        bf = get_BF(SERVER_IP, mean_val * np.exp(1j*PHI_CSI))
+        bf = get_BF(SERVER_IP, AMP_PR_1 , PHI_CSI)
+
+        logger.debug("BF result: %s", np.angle(bf))
 
         PHI_MRT = np.angle(bf) - (PHI_LR + PHI_CABLE)  # + PHI_CABLE
 

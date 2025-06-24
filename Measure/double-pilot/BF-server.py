@@ -56,19 +56,21 @@ with open(output_path, "w") as f:
             if alive_socket in socks and socks[alive_socket] == zmq.POLLIN:
                 msg_json = alive_socket.recv_json()
                 hostname = msg_json.get("host")
-                csi_real = msg_json.get("csi_real", 0.0)
-                csi_imag = msg_json.get("csi_imag", 0.0)
-                csi_value = complex(csi_real, csi_imag)
+                csi_ampl = msg_json.get("csi_ampl", 0.0)
+                csi_phase = msg_json.get("csi_phase", 0.0)
+                csi_value = csi_ampl * np.exp(1j * csi_phase)
 
                 hostnames.append(hostname)
                 csi_data.append(csi_value)
 
                 messages_received += 1
-                print(f"Received from {hostname}: {csi_value} ({messages_received}/{num_subscribers})")
+                print(
+                    f"Received from {hostname}: {csi_ampl} {csi_phase} rad ({messages_received}/{num_subscribers})"
+                )
                 f.write(f"     - {hostname}\n")
 
                 # Send the phase-inverted complex number back
-                response_csi = -1 * csi_value
+                response_csi = np.conj(csi_value)
                 alive_socket.send_json({
                     "real": response_csi.real,
                     "imag": response_csi.imag
