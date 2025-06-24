@@ -180,7 +180,8 @@ def rx_channels(usrp, rx_streamer, quit_event, duration, result_queue, start_tim
         )
 
         avg_ampl = np.mean(np.abs(iq_samples), axis=1)
-        var_ampl = np.var(np.abs(iq_samples), axis=1)
+
+        var_phase = np.var(phase_diff, axis=1)
 
         max_I = np.max(np.abs(np.real(iq_samples)), axis=1)
         max_Q = np.max(np.abs(np.imag(iq_samples)), axis=1)
@@ -200,9 +201,9 @@ def rx_channels(usrp, rx_streamer, quit_event, duration, result_queue, start_tim
         )
 
         logger.debug(
-            "VAR AMPL IQ CH0: %.6f CH1: %.6f",
-            var_ampl[0],
-            var_ampl[1],
+            "VAR PHASE IQ CH0: %.6f CH1: %.6f",
+            var_phase[0],
+            var_phase[1],
         )
 
 
