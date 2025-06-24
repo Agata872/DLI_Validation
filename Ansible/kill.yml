@@ -6,7 +6,7 @@
 
   tasks:
     - name: Check if any process is listening on port 50002
-      shell: lsof -i :50002 -t
+      shell: sudo lsof -i :50002 -t
       register: port_check
       ignore_errors: yes
 
