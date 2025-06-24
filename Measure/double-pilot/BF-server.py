@@ -66,7 +66,7 @@ with open(output_path, "w") as f:
 
                 messages_received += 1
                 print(
-                    f"Received from {hostname}: {csi_ampl} {csi_phase} rad ({messages_received}/{num_subscribers})"
+                    f"Received from {hostname}: {csi_ampl} {csi_phase} rad   {np.abs(csi_value)} {np.Qngle(csi_value)} rad ({messages_received}/{num_subscribers})"
                 )
                 f.write(f"     - {hostname}\n")
 
