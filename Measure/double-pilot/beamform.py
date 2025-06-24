@@ -179,13 +179,13 @@ def rx_channels(usrp, rx_streamer, quit_event, duration, result_queue, start_tim
             {
                 "circ_mean": _circ_mean,
                 "mean": _mean,
-                "avg_ampl": avg_ampl.tolist()[PILOT_RX_CH],
+                "avg_ampl": avg_ampl.tolist()[PILOT_RX_CH], #TODO move this channel selection out of this function
             }
         )
 
         avg_ampl = np.mean(np.abs(iq_samples), axis=1)
 
-        var_phase = np.var(phase_diff, axis=1)
+        var_phase = np.var(phase_diff)
 
         max_I = np.max(np.abs(np.real(iq_samples)), axis=1)
         max_Q = np.max(np.abs(np.imag(iq_samples)), axis=1)
