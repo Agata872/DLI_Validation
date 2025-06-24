@@ -20,31 +20,31 @@ def extract_hosts_from_group(inventory, group_name):
     hosts = group.get("hosts", {})
     return list(hosts.keys())
 
-def run_remote_script(target, script_path):
-    """Execute the specified script on the remote device via SSH and print output in real-time."""
-    remote_cmd = (
-        'cd ~/DLI_Validation/Measure && '
-        'export PYTHONPATH="/usr/local/lib/python3/dist-packages:$PYTHONPATH"; '
+# def run_remote_script(target, script_path):
+#     """Execute the specified script on the remote device via SSH and print output in real-time."""
+#     remote_cmd = (
+#         'cd ~/DLI_Validation/Measure && '
+#         'export PYTHONPATH="/usr/local/lib/python3/dist-packages:$PYTHONPATH"; '
 
-        f'python3 -u {script_path}'
-    )
-    cmd = ["ssh", target, remote_cmd]
-    try:
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1)
+#         f'python3 -u {script_path}'
+#     )
+#     cmd = ["ssh", target, remote_cmd]
+#     try:
+#         process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1)
 
-        # Read stdout in real-time
-        for line in process.stdout:
-            print(f"[{target}] Output: {line}", end='')
+#         # Read stdout in real-time
+#         for line in process.stdout:
+#             print(f"[{target}] Output: {line}", end='')
 
-        process.wait()
+#         process.wait()
 
-        # Print stderr (if any)
-        stderr_output = process.stderr.read()
-        if stderr_output:
-            print(f"[{target}] Error Output:\n{stderr_output}")
+#         # Print stderr (if any)
+#         stderr_output = process.stderr.read()
+#         if stderr_output:
+#             print(f"[{target}] Error Output:\n{stderr_output}")
 
-    except Exception as e:
-        print(f"❌ Failed to run script on {target}: {e}")
+#     except Exception as e:
+#         print(f"❌ Failed to run script on {target}: {e}")
 
 def main():
     inventory_file = "inventory.yaml"
