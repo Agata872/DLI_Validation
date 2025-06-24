@@ -501,12 +501,17 @@ def starting_in(usrp, at_time):
     return f"Starting in {delta(usrp, at_time):.2f}s"
 
 
+def stopping_in(usrp, at_time):
+    return f"Stopping in {delta(usrp, at_time):.2f}s"
+
+
 def measure_pilot(usrp, rx_streamer, quit_event, result_queue, at_time=None, stop_time=None):
     logger.debug("########### Measure PILOT ###########")
 
     start_time = uhd.types.TimeSpec(at_time)
 
     logger.debug(starting_in(usrp, at_time))
+    logger.debug(stopping_in(usrp, stop_time))
 
     usrp.set_rx_antenna(PILOT_RX_ANT, PILOT_RX_CH)
     usrp.set_rx_antenna(REF_RX_ANT, REF_RX_CH)
@@ -542,6 +547,7 @@ def measure_loopback(
     start_time = uhd.types.TimeSpec(at_time)
 
     logger.debug(starting_in(usrp, at_time))
+    logger.debug(stopping_in(usrp, stop_time))
 
     user_settings = None
     try:
@@ -616,13 +622,13 @@ def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr, at_time, stop_time):
     phases[BF_TX_CH] = phase_corr
     amplitudes[BF_TX_CH] = 0.8
 
-    
     usrp.set_tx_antenna(BF_TX_ANT, BF_TX_CH)
     usrp.set_tx_gain(BF_TX_GAIN, BF_TX_CH)
 
     start_time = uhd.types.TimeSpec(at_time)
 
     logger.debug(starting_in(usrp, at_time))
+    logger.debug(stopping_in(usrp, stop_time))
 
     tx_thr = tx_thread(
         usrp,
@@ -749,7 +755,7 @@ def main():
         # ==================================
 
         logger.info("Scheduled P1 RX start time: %.6f", START_P1_RX)
-        measure_pilot(usrp, rx_streamer, quit_event, result_queue, at_time=START_P1_RX)
+        measure_pilot(usrp, rx_streamer, quit_event, result_queue, at_time=START_P1_RX, stop_time=STOP_P1_TX)
         # phi = result_queue.get()
         metrics = result_queue.get()
         circ_mean = metrics["circ_mean"]
@@ -763,7 +769,7 @@ def main():
         # ==================================
 
         logger.info("Scheduled P2 RX start time: %.6f", START_P2_RX)
-        measure_pilot(usrp, rx_streamer, quit_event, result_queue, at_time=START_P2_RX)
+        measure_pilot(usrp, rx_streamer, quit_event, result_queue, at_time=START_P2_RX, stop_time=STOP_P2_TX)
         # phi = result_queue.get()
         metrics = result_queue.get()
         circ_mean = metrics["circ_mean"]
