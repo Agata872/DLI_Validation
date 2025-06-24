@@ -80,6 +80,8 @@ try:
         power_dBm = scope.get_power_dBm()
         pos = positioner.get_data()
 
+        power_dBm = -55 if power_dBm<-55 else power_dBm
+
         if pos is not None:
             plt.measurements_rt(pos.x, pos.y, pos.z, power_dBm)
         # counter+= 1
