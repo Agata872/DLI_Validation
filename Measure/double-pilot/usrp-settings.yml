@@ -4,7 +4,7 @@ INIT_DELAY: 0.2  # 200ms initial delay before transmit
 ################## 
 # SERVER  CONF ###
 ################## 
-SERVER_IP: "192.108.1.147"
+SERVER_IP: "192.108.0.1"
 
 
 ################## 
