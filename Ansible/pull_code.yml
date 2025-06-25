@@ -1,7 +1,6 @@
 ---
 - name: Pull GitHub repository code on ceiling
   hosts: All #ceiling
-  become: yes  # Use root privileges if needed; remove if not necessary
   tasks:
     - name: Clone GitHub repository
       git:
@@ -9,3 +8,4 @@
         dest: /home/pi/DLI_Validation
         version: master  # Or the branch/tag/commit you need
         force: yes     # Force update if needed
+        update: yes
