@@ -171,7 +171,7 @@ def rx_channels(usrp, rx_streamer, quit_event, duration, result_queue, start_tim
         _circ_mean = tools.circmean(phase_diff, deg=False)
         _mean = np.mean(phase_diff)
 
-        logger.debug("Diff cirmean and mean: %.6f", _circ_mean - _mean)
+        logger.debug("Diff circmean and mean: %.6f", _circ_mean - _mean)
 
         avg_ampl = np.mean(np.abs(iq_samples), axis=1)
 
@@ -592,17 +592,17 @@ def measure_loopback(
     logger.debug(starting_in(usrp, at_time))
     logger.debug(stopping_in(usrp, stop_time))
 
-    # user_settings = None
-    # try:
-    #     user_settings = usrp.get_user_settings_iface(1)
-    #     if user_settings:
-    #         logger.debug(user_settings.peek32(0))
-    #         user_settings.poke32(0, SWITCH_LOOPBACK_MODE)
-    #         logger.debug(user_settings.peek32(0))
-    #     else:
-    #         logger.error(" Cannot write to user settings.")
-    # except (RuntimeError, OSError) as e:
-    #     logger.error(e)
+    user_settings = None
+    try:
+        user_settings = usrp.get_user_settings_iface(1)
+        if user_settings:
+            logger.debug(user_settings.peek32(0))
+            user_settings.poke32(0, SWITCH_LOOPBACK_MODE)
+            logger.debug(user_settings.peek32(0))
+        else:
+            logger.error(" Cannot write to user settings.")
+    except (RuntimeError, OSError) as e:
+        logger.error(e)
 
     tx_thr = tx_thread(
         usrp,
@@ -635,8 +635,8 @@ def measure_loopback(
     tx_meta_thr.join()
 
     # reset RF switches ctrl
-    # if user_settings:
-    #     user_settings.poke32(0, SWITCH_RESET_MODE)
+    if user_settings:
+        user_settings.poke32(0, SWITCH_RESET_MODE)
 
     quit_event.clear()
 
