@@ -101,7 +101,7 @@ with open(output_path, "w") as f:
             # response = {"delta_phase": delta_phase, "avg_ampl": avg_ampl}
             response_csi = np.conj(original_csi)
             reponse = {"real": response_csi.real, "imag": response_csi.imag}
-            router_socket.send_multipart([identity, b"", json.dumps(reponse).encode()])
+            router_socket.send_multipart([identity, json.dumps(reponse).encode()])
 
         f.flush()
         print(f"SYNC {meas_id} complete. Sleeping {delay}s...\n")
