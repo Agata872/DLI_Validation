@@ -85,7 +85,9 @@ def compute_phase_difference(iq_data, fs):
     phase = np.angle(iq_filtered)
 
     # Calculate the phase difference between channels A and B (CH0 and CH1)
-    phase_diff = np.unwrap(phase[1, :]) - np.unwrap(phase[0, :])
+    phase_diff = phase[1, :] - phase[0, :] #TODO removed unwarp
+
+    # phase_diff = np.unwrap(phase[1, :]) - np.unwrap(phase[0, :])
 
     return phase_diff
 
