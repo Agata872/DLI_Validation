@@ -125,7 +125,7 @@ def setup(usrp):
     mcr = 20e6
     assert (mcr / rate).is_integer(), f"The masterclock rate {mcr} should be an integer multiple of the sampling rate {rate}"
     usrp.set_master_clock_rate(mcr)
-    channels = [0, 1]
+    channels = [PILOT_TX_CH]
     setup_clock(usrp, "external", usrp.get_num_mboards())
     setup_pps(usrp, "external")
     rx_bw = 200e3
@@ -158,6 +158,7 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time):
     phase = np.asarray(phase)
     sample = amplitude * np.exp(phase * 1j)
     transmit_buffer = np.ones((num_channels, 1000 * max_samps_per_packet), dtype=np.complex64)
+
     transmit_buffer[0, :] *= sample[0]
     if num_channels > 1:
         transmit_buffer[1, :] *= sample[1]
