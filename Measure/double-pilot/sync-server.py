@@ -54,7 +54,6 @@ new_msg_received = 0
 WAIT_TIMEOUT = 10*1000
 
 print(f"Starting experiment: {unique_id}")
-# 确保 data 文件夹存在
 data_dir = os.path.join(script_dir, "..", "data")
 os.makedirs(data_dir, exist_ok=True)
 output_path = os.path.join(data_dir, f"exp-{unique_id}.yml")

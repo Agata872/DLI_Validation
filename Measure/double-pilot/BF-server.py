@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import zmq
 import time
 import sys
@@ -6,6 +8,7 @@ import os
 from datetime import datetime, timezone
 import json
 
+# Parse arguments
 if len(sys.argv) > 1:
     delay = int(sys.argv[1])
     num_subscribers = int(sys.argv[2])
@@ -13,20 +16,25 @@ else:
     delay = 5
     num_subscribers = 31
 
+# Setup
 host = "*"
 port = "5559"
-
 context = zmq.Context()
 
-alive_socket = context.socket(zmq.REP)
-alive_socket.bind(f"tcp://{host}:{port}")
+# Use ROUTER socket to allow delayed reply
+router_socket = context.socket(zmq.ROUTER)
+router_socket.bind(f"tcp://{host}:{port}")
 
+# Poller setup
 poller = zmq.Poller()
-poller.register(alive_socket, zmq.POLLIN)
+poller.register(router_socket, zmq.POLLIN)
 
-csi_data = []
+# Data storage
+identities = []
 hostnames = []
+csi_data = []
 
+# Output setup
 meas_id = 0
 unique_id = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
 script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -42,39 +50,64 @@ with open(output_path, "w") as f:
     f.write(f"measurements:\n")
 
     while True:
-        print(f"Waiting for {num_subscribers} subscribers to send a message...")
+        print(f"\nWaiting for {num_subscribers} subscribers to send a message...")
         f.write(f"  - meas_id: {meas_id}\n")
         f.write("    active_tiles:\n")
 
-        csi_data.clear()
+        # Clear for new round
+        identities.clear()
         hostnames.clear()
+        csi_data.clear()
 
         messages_received = 0
         start_time = time.time()
+
+        # Receive all subscriber messages
         while messages_received < num_subscribers:
             socks = dict(poller.poll(1000))
-            if alive_socket in socks and socks[alive_socket] == zmq.POLLIN:
-                msg_json = alive_socket.recv_json()
-                print(f"Received message: {msg_json}")
+            if router_socket in socks and socks[router_socket] == zmq.POLLIN:
+                identity, empty, msg = router_socket.recv_multipart()
+                msg_json = json.loads(msg.decode())
+
                 hostname = msg_json.get("host")
                 csi_ampl = float(msg_json.get("csi_ampl", 0.0))
                 csi_phase = float(msg_json.get("csi_phase", 0.0))
                 csi_value = csi_ampl * np.exp(1j * csi_phase)
 
+                identities.append(identity)
                 hostnames.append(hostname)
                 csi_data.append(csi_value)
 
                 messages_received += 1
                 print(
-                    f"Received from {hostname}: {csi_ampl} {csi_phase} rad   {np.abs(csi_value)} {np.angle(csi_value)} rad ({messages_received}/{num_subscribers})"
+                    f"Received from {hostname}: ampl={csi_ampl:.2f}, phase={csi_phase:.2f} rad -> CSI={csi_value:.2f} ({messages_received}/{num_subscribers})"
                 )
                 f.write(f"     - {hostname}\n")
 
-                # Send the phase-inverted complex number back
-                response_csi = np.conj(csi_value)
-                alive_socket.send_json({
-                    "real": response_csi.real,
-                    "imag": response_csi.imag
-                })
+            if time.time() - start_time > 10:
+                print("Timeout waiting for subscribers.")
+                break
 
-        print(f"DONE")
+        if messages_received == 0:
+            continue
+
+        # Perform computation after all messages
+        avg_csi = np.mean(csi_data)
+        avg_ampl = np.abs(avg_csi)
+        avg_phase = np.angle(avg_csi)
+        print(
+            f"\nAverage CSI: {avg_csi:.4f} (ampl={avg_ampl:.2f}, phase={avg_phase:.2f} rad)"
+        )
+
+        # Send individual replies to all identities
+        for identity, original_csi in zip(identities, csi_data):
+            # delta_phase = np.angle(original_csi) - avg_phase
+            # response = {"delta_phase": delta_phase, "avg_ampl": avg_ampl}
+            response_csi = np.conj(original_csi)
+            reponse = {"real": response_csi.real, "imag": response_csi.imag}
+            router_socket.send_multipart([identity, b"", json.dumps(reponse).encode()])
+
+        f.flush()
+        print(f"SYNC {meas_id} complete. Sleeping {delay}s...\n")
+        time.sleep(delay)
+        meas_id += 1
