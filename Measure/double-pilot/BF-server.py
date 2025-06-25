@@ -84,10 +84,6 @@ with open(output_path, "w") as f:
                 )
                 f.write(f"     - {hostname}\n")
 
-            if time.time() - start_time > 10:
-                print("Timeout waiting for subscribers.")
-                break
-
         if messages_received == 0:
             continue
 
