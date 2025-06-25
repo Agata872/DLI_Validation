@@ -125,7 +125,7 @@ def setup(usrp):
     mcr = 20e6
     assert (mcr / rate).is_integer(), f"The masterclock rate {mcr} should be an integer multiple of the sampling rate {rate}"
     usrp.set_master_clock_rate(mcr)
-    channels = [PILOT_TX_CH]
+    channels = [0,1]
     setup_clock(usrp, "external", usrp.get_num_mboards())
     setup_pps(usrp, "external")
     rx_bw = 200e3
@@ -261,13 +261,16 @@ def main():
 
         usrp.set_tx_antenna(PILOT_TX_ANT, PILOT_TX_CH)
 
+        amplitudes = [0.0,0.0] 
+        amplitudes[PILOT_TX_CH] = 0.8
+
         tx_thr = tx_thread(
             usrp,
             tx_streamer,
             quit_event,
             phase=[0.0, 0.0],
-            amplitude=[0.8, 0.8],
-            start_time=start_time_spec
+            amplitude=amplitudes,
+            start_time=start_time_spec,
         )
         # Also start TX async metadata monitor thread
         tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
