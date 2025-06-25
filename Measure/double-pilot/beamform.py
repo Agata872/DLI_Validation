@@ -347,13 +347,13 @@ def get_BF(ip, ampl, phase):
 
     logger.debug("Connecting to server %s.", ip)
 
-    socket = context.socket(zmq.DEALER)
+    dealer_socket = context.socket(zmq.DEALER)
 
     # Give this DEALER a unique identity so the ROUTER can reply properly
-    hostname = socket.gethostname()
-    socket.setsockopt_string(zmq.IDENTITY, hostname)
 
-    socket.connect(f"tcp://{SERVER_IP}:5559")
+    dealer_socket.setsockopt_string(zmq.IDENTITY, HOSTNAME)
+
+    dealer_socket.connect(f"tcp://{SERVER_IP}:5559")
 
     logger.debug("Sending CSI")
 
@@ -361,7 +361,7 @@ def get_BF(ip, ampl, phase):
     msg = {"host": HOSTNAME, "csi_ampl": ampl, "csi_phase": phase}
 
     # Serialize to JSON and send
-    socket.send(json.dumps(msg).encode())
+    dealer_socket.send(json.dumps(msg).encode())
     logger.debug("Message sent, waiting for response...")
 
     # Wait for response
@@ -371,18 +371,17 @@ def get_BF(ip, ampl, phase):
 
     result = None
 
-    if socket in socks and socks[socket] == zmq.POLLIN:
-        reply = socket.recv()
+    if dealer_socket in socks and socks[socket] == zmq.POLLIN:
+        reply = dealer_socket.recv()
         response = json.loads(reply.decode())
-        print(f"[{hostname}] Received: {response}")
+        print(f"[{HOSTNAME}] Received: {response}")
         # Reconstruct complex number
         result = complex(response["real"], response["imag"])
         logger.debug("Received response: %s", result)
     else:
-        print(f"[{hostname}] No reply from server, timed out.")
-        
+        print(f"[{HOSTNAME}] No reply from server, timed out.")
 
-    socket.close()
+    dealer_socket.close()
 
     return result
 
