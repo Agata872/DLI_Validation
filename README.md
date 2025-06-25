@@ -72,7 +72,3 @@ This project provides tools for managing and performing distributed beamforming 
 
   * Compute a second beamforming weight
   * Enable **zero forcing** via CSI combination
-
----
-
-Let me know if you want a Makefile or Bash script to automate the above steps.
