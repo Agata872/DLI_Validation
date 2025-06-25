@@ -104,7 +104,7 @@ def rx_channels(usrp, rx_streamer, quit_event, duration, result_queue, start_tim
     """
     # https://files.ettus.com/manual/page_sync.html#sync_phase_cordics
     # The CORDICs are reset at each start-of-burst command, so users should ensure that every start-of-burst also has a time spec set.
-    logger.debug("GAIN IS CH0: %s CH1: %s", usrp.get_rx_gain(0), usrp.get_rx_gain(1))
+    logger.debug("RX GAIN IS CH0: %s CH1: %s", usrp.get_rx_gain(0), usrp.get_rx_gain(1))
 
     num_channels = rx_streamer.get_num_channels()
     max_samps_per_packet = rx_streamer.get_max_num_samps()
@@ -185,7 +185,8 @@ def rx_channels(usrp, rx_streamer, quit_event, duration, result_queue, start_tim
 
         avg_ampl = np.mean(np.abs(iq_samples), axis=1)
 
-        var_phase = np.var(phase_diff)
+        var_phase = np.var(np.angle(iq_data), axis=1)
+        var_phase_diff = np.var(phase_diff)
 
         max_I = np.max(np.abs(np.real(iq_samples)), axis=1)
         max_Q = np.max(np.abs(np.imag(iq_samples)), axis=1)
@@ -204,7 +205,7 @@ def rx_channels(usrp, rx_streamer, quit_event, duration, result_queue, start_tim
             avg_ampl[1],
         )
 
-        logger.debug("VAR PHASE IQ CH1-CH0: %.6f ", var_phase)
+        logger.debug("VAR PHASE IQ CH0: %.6f CH1: %.6f CH1-CH0: %.6f", var_phase[0], var_phase[1], var_phase_diff)
 
 
 def setup_clock(usrp, clock_src, num_mboards):
@@ -481,6 +482,8 @@ def tx_thread(
 
 
 def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
+    logger.debug("TX GAIN IS CH0: %s CH1: %s", usrp.get_tx_gain(0), usrp.get_tx_gain(1))
+
     num_channels = tx_streamer.get_num_channels()
 
     max_samps_per_packet = tx_streamer.get_max_num_samps()
@@ -498,7 +501,6 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
     transmit_buffer[0, :] *= sample[0]
 
     transmit_buffer[1, :] *= sample[1]
-
 
     tx_md = uhd.types.TXMetadata()
 
