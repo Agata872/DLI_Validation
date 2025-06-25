@@ -373,6 +373,7 @@ def get_BF(ip, ampl, phase):
 
     if dealer_socket in socks and socks[dealer_socket] == zmq.POLLIN:
         reply = dealer_socket.recv()
+        logger.debug(f"Raw reply: {reply!r}")
         response = json.loads(reply.decode())
         print(f"[{HOSTNAME}] Received: {response}")
         # Reconstruct complex number
