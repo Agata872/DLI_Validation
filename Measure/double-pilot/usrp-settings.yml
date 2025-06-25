@@ -20,15 +20,15 @@ RATE: !!float 250e3
 ################## 
 
 ############## GAINS ##############
-LOOPBACK_RX_GAIN: 45 #23  # empirical determined
+LOOPBACK_RX_GAIN: 50 #23  # empirical determined
 LOOPBACK_TX_GAIN: 50 
 
-REF_RX_GAIN: 45 # SHOULD BE THE SAME AS LOOPBACK RX
-BF_TX_GAIN: 70
+REF_RX_GAIN: 50 # SHOULD BE THE SAME AS LOOPBACK RX
+BF_TX_GAIN: 72
 
 FREE_TX_GAIN: 0  # no gain to be sure
 
-PILOT_TX_GAIN: 70
+PILOT_TX_GAIN: 72
 
 
 ############## CHANNELS AND ANTENNAS ##############
