@@ -66,7 +66,7 @@ with open(output_path, "w") as f:
         while messages_received < num_subscribers:
             socks = dict(poller.poll(1000))
             if router_socket in socks and socks[router_socket] == zmq.POLLIN:
-                identity, empty, msg = router_socket.recv_multipart()
+                identity, msg = router_socket.recv_multipart()
                 msg_json = json.loads(msg.decode())
 
                 hostname = msg_json.get("host")
