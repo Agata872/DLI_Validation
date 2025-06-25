@@ -371,7 +371,7 @@ def get_BF(ip, ampl, phase):
 
     result = None
 
-    if dealer_socket in socks and socks[socket] == zmq.POLLIN:
+    if dealer_socket in socks and socks[dealer_socket] == zmq.POLLIN:
         reply = dealer_socket.recv()
         response = json.loads(reply.decode())
         print(f"[{HOSTNAME}] Received: {response}")
