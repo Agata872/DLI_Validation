@@ -366,7 +366,7 @@ def get_BF(ip, ampl, phase):
 
     # Wait for response
     poller = zmq.Poller()
-    poller.register(socket, zmq.POLLIN)
+    poller.register(dealer_socket, zmq.POLLIN)
     socks = dict(poller.poll(5000))  # 5 second timeout
 
     result = None
