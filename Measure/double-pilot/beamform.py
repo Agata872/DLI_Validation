@@ -417,13 +417,13 @@ def setup(usrp, server_ip, connect=True):
     setup_clock(usrp, "external", usrp.get_num_mboards())
     setup_pps(usrp, "external")
     # smallest as possible (https://files.ettus.com/manual/page_usrp_b200.html#b200_fe_bw)
-    rx_bw = 200e3
+    # rx_bw = 200e3
     for chan in channels:
         usrp.set_rx_rate(rate, chan)
         usrp.set_tx_rate(rate, chan)
         # NOTE DC offset is enabled
-        usrp.set_rx_dc_offset(True, chan)
-        usrp.set_rx_bandwidth(rx_bw, chan)
+        usrp.set_rx_dc_offset(False, chan)
+        # usrp.set_rx_bandwidth(rx_bw, chan)
         usrp.set_rx_agc(False, chan)
     # specific settings from loopback/REF PLL
 
