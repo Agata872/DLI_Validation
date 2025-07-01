@@ -206,6 +206,9 @@ def rx_channels(usrp, rx_streamer, quit_event, duration, result_queue, start_tim
             max_Q[1],
         )
 
+        if np.max(np.abs(np.real(iq_samples))) > 0.8:
+            logger.error("IQ data to high")
+
         logger.debug(
             "AVG AMPL IQ CH0: %.6f CH1: %.6f",
             avg_ampl[0],
