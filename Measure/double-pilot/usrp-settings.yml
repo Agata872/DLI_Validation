@@ -31,7 +31,7 @@ BF_TX_GAIN: 72
 
 FREE_TX_GAIN: 0  # no gain to be sure
 
-PILOT_TX_GAIN: 80
+PILOT_TX_GAIN: 88
 
 
 ############## CHANNELS AND ANTENNAS ##############

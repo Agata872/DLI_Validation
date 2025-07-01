@@ -167,14 +167,21 @@ def rx_channels(usrp, rx_streamer, quit_event, duration, result_queue, start_tim
         rx_streamer.issue_stream_cmd(
             uhd.types.StreamCMD(uhd.types.StreamMode.stop_cont)
         )
-        iq_samples = iq_data[:, int(RATE // 10) : num_rx - int(RATE // 100)]
+        iq_samples = iq_data[:, int(RATE // 10) : num_rx]
 
         # np.save(file_name_state, iq_samples)
 
         # Compute the phase difference for the file
-        phase_diff = tools.compute_phase_difference(iq_data, RATE)
+        phase_ch0, slope_ch0 = tools.get_phases_and_remove_CFO(iq_data[0,:], RATE)
+        phase_ch1, slope_ch1 = tools.get_phases_and_remove_CFO(iq_data[1, :], RATE)
 
-        # phase_diff = phase_ch0 - phase_ch1
+        logger.debug(
+            "slope_ch0 and slope_ch1: %.6f, %.6f [Hz]",
+            slope_ch0 / (2 * np.pi),
+            slope_ch1 / (2 * np.pi),
+        )
+
+        phase_diff = phase_ch0 - phase_ch1
 
         _circ_mean = tools.circmean(phase_diff, deg=False)
         _mean = np.mean(phase_diff)
