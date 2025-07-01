@@ -7,6 +7,9 @@ INIT_DELAY: 0.2  # 200ms initial delay before transmit
 SERVER_IP: "192.108.0.1"
 
 
+ERROR_PORT: "5555"
+
+
 ################## 
 #### RF  CONF ####
 ################## 
@@ -20,10 +23,10 @@ RATE: !!float 250e3
 ################## 
 
 ############## GAINS ##############
-LOOPBACK_RX_GAIN: 50 #23  # empirical determined
-LOOPBACK_TX_GAIN: 40 
+LOOPBACK_RX_GAIN: 40 #23  # empirical determined
+LOOPBACK_TX_GAIN: 55 
 
-REF_RX_GAIN: 50 # SHOULD BE THE SAME AS LOOPBACK RX
+REF_RX_GAIN: 40 # SHOULD BE THE SAME AS LOOPBACK RX
 BF_TX_GAIN: 72
 
 FREE_TX_GAIN: 0  # no gain to be sure
