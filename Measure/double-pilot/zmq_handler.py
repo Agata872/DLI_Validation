@@ -3,8 +3,9 @@ import zmq
 import socket
 
 
-class ZMQPushHandler(logging.Handler):
-    def __init__(self):
+class ZMQHandler(logging.Handler):
+
+    def __init__(self, zmq_server):
         super().__init__()
         self.hostname = socket.gethostname()
         self.context = zmq.Context()
