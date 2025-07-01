@@ -40,7 +40,7 @@ def to_min_pi_plus_pi(angles, deg=True):
     return angles
 
 f0 = 1e3
-cutoff = 1e3
+cutoff = 250
 lowcut = f0 - cutoff
 highcut = f0 + cutoff
 
