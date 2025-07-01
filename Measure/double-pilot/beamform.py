@@ -80,6 +80,13 @@ file_handler = logging.FileHandler("log.txt", mode="w")  # Overwrite log.txt
 logger.addHandler(file_handler)
 file_handler.setFormatter(formatter)
 
+# ZMQ handler sends only errors and above
+from zmq_handler import ZMQHandler
+zmq_handler = ZMQHandler("tcp://*:5555")
+zmq_handler.setLevel(logging.ERROR)
+zmq_handler.setFormatter(formatter)
+logger.addHandler(zmq_handler)
+
 def rx_channels(usrp, rx_streamer, quit_event, duration, result_queue, start_time=None):
     """
     Receives and processes IQ samples from a USRP device for a specified duration, computes phase and amplitude statistics, and stores results.
