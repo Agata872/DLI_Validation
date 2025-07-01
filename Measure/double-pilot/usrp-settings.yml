@@ -24,7 +24,7 @@ RATE: !!float 250e3
 
 ############## GAINS ##############
 LOOPBACK_RX_GAIN: 40 #23  # empirical determined
-LOOPBACK_TX_GAIN: 55 
+LOOPBACK_TX_GAIN: 60 
 
 REF_RX_GAIN: 40 # SHOULD BE THE SAME AS LOOPBACK RX
 BF_TX_GAIN: 72
