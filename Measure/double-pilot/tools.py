@@ -97,7 +97,7 @@ def compute_phase_difference2(iq_data, fs):
 
     iq_filtered = butter_bandpass_filter(iq_data, lowcut, highcut, fs)
 
-     def remove_carrier_phase(x):
+    def remove_carrier_phase(x):
         phase = np.unwrap(np.angle(x))
         slope, intercept, *_ = linregress(t, phase)
         residual = phase - (slope * t + intercept)
