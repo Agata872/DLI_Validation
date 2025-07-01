@@ -863,7 +863,7 @@ def main():
 
         logger.debug("BF result: %s (expected) %s (from server)", -PHI_CSI, np.angle(bf))
 
-        PHI_MRT = np.angle(bf) - (PHI_LR + PHI_CABLE)  # + PHI_CABLE
+        PHI_MRT = np.angle(bf) - (PHI_LR)  # + PHI_CABLE
 
         # PHI_DLI =
         # benchmark without phased beamforming
