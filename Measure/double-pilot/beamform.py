@@ -81,7 +81,8 @@ logger.addHandler(file_handler)
 file_handler.setFormatter(formatter)
 
 # ZMQ handler sends only errors and above
-from zmq_handler import ZMQHandler
+from zmq_handler import ZMQHandler  # Make sure zmq_handler.py defines a class named ZMQHandler
+
 zmq_handler = ZMQHandler(f"tcp://{SERVER_IP}:{ERROR_PORT}")
 zmq_handler.setLevel(logging.ERROR)
 zmq_handler.setFormatter(formatter)
