@@ -2,13 +2,14 @@ import logging
 import zmq
 import socket
 
-class ZMQHandler(logging.Handler):
-    def __init__(self, zmq_port="tcp://*:5555"):
+
+class ZMQPushHandler(logging.Handler):
+    def __init__(self):
         super().__init__()
         self.hostname = socket.gethostname()
         self.context = zmq.Context()
-        self.socket = self.context.socket(zmq.PUB)
-        self.socket.bind(zmq_port)
+        self.socket = self.context.socket(zmq.PUSH)
+        self.socket.connect(zmq_server)
 
     def emit(self, record):
         try:
