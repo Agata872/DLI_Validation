@@ -111,8 +111,13 @@ def compute_phase_difference2(iq_data, fs):
     return phase_diff
 
 
+# Function to compute phase difference between two channels
 def compute_phase_difference(iq_data, fs):
-    # ALERT channel phases are rotated, previously 0-1, now 1-0, according to my paper.
+    # Define fixed parameters for filter
+    f0 = 1e3  # Center frequency for bandpass filter (Hz)
+    cutoff = 100  # Cutoff range for bandpass filter (Hz)
+    lowcut = f0 - cutoff
+    highcut = f0 + cutoff
 
     # Apply bandpass filter to the real and imaginary parts
     iq_filtered = butter_bandpass_filter(iq_data, lowcut, highcut, fs)
@@ -121,11 +126,29 @@ def compute_phase_difference(iq_data, fs):
     phase = np.angle(iq_filtered)
 
     # Calculate the phase difference between channels A and B (CH0 and CH1)
-    # phase_diff = phase[1, :] - phase[0, :]
+    phase_diff = np.unwrap(phase[0, :]) - np.unwrap(phase[1, :])
 
-    phase_diff = np.unwrap(phase[1, :]) - np.unwrap(phase[0, :])
+    # Ensure that phase difference values close to -pi and pi are wrapped correctly
+    phase_diff = np.mod(phase_diff + np.pi, 2 * np.pi) - np.pi  # This ensures phase is wrapped between -pi and pi
 
     return phase_diff
+
+
+# def compute_phase_difference(iq_data, fs):
+#     # ALERT channel phases are rotated, previously 0-1, now 1-0, according to my paper.
+
+#     # Apply bandpass filter to the real and imaginary parts
+#     iq_filtered = butter_bandpass_filter(iq_data, lowcut, highcut, fs)
+
+#     # Calculate the phase of the filtered IQ data
+#     phase = np.angle(iq_filtered)
+
+#     # Calculate the phase difference between channels A and B (CH0 and CH1)
+#     # phase_diff = phase[1, :] - phase[0, :]
+
+#     phase_diff = np.unwrap(phase[1, :]) - np.unwrap(phase[0, :])
+
+#     return phase_diff
 
 def get_phases_and_remove_CFO(x, fs=250e3, remove_first_samples=True):
 
