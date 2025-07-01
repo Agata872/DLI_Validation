@@ -77,9 +77,9 @@ def wait_till_pressed():
 
 try:
 
-    meas_id, unique_id = wait_till_go_from_server()
+    # meas_id, unique_id = wait_till_go_from_server()
     sleep(0.2)  # wake-up 10 seconds before rover starts to move
-    wait_till_pressed()
+    # wait_till_pressed()
 
     while True:
 
