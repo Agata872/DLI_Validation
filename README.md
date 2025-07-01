@@ -41,8 +41,8 @@ This project provides tools for managing and performing distributed beamforming 
 1. **Kill and pull latest code:**
 
    ```bash
-   ansible-playbook Ansible/kill.yml
-   ansible-playbook Ansible/pull_code.yml
+   ansible-playbook -i inventory.yaml kill.yml -f40
+   ansible-playbook -i inventory.yaml pull_code.yml -f40
    ```
 
 2. **Start synchronization server:**
