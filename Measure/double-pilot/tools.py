@@ -40,7 +40,7 @@ def to_min_pi_plus_pi(angles, deg=True):
     return angles
 
 f0 = 1e3
-cutoff = 100
+cutoff = 1e3
 lowcut = f0 - cutoff
 highcut = f0 + cutoff
 
@@ -95,15 +95,16 @@ def compute_phase_difference2(iq_data, fs):
     # ALERT: channel order flipped (1-0 instead of 0-1), as per the paper
     t = np.arange(iq_data.shape[1]) / fs
 
-    def remove_carrier_phase(x):
-        analytic = hilbert(x)
-        phase = np.unwrap(np.angle(analytic))
+    iq_filtered = butter_bandpass_filter(iq_data, lowcut, highcut, fs)
+
+     def remove_carrier_phase(x):
+        phase = np.unwrap(np.angle(x))
         slope, intercept, *_ = linregress(t, phase)
         residual = phase - (slope * t + intercept)
         return residual
 
-    phase_A = remove_carrier_phase(iq_data[1, :])
-    phase_B = remove_carrier_phase(iq_data[0, :])
+    phase_A = remove_carrier_phase(iq_filtered[1, :])
+    phase_B = remove_carrier_phase(iq_filtered[0, :])
 
     phase_diff = phase_A - phase_B
     return phase_diff
