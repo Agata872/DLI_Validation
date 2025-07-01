@@ -95,7 +95,8 @@ def compute_phase_difference2(iq_data, fs):
     # ALERT: channel order flipped (1-0 instead of 0-1), as per the paper
     t = np.arange(iq_data.shape[1]) / fs
 
-    iq_filtered = butter_bandpass_filter(iq_data, lowcut, highcut, fs)
+    iq_filtered_A = butter_bandpass_filter(iq_data[1, :], lowcut, highcut, fs)
+    iq_filtered_B = butter_bandpass_filter(iq_data[0, :], lowcut, highcut, fs)
 
     def remove_carrier_phase(x):
         phase = np.unwrap(np.angle(x))
@@ -103,12 +104,11 @@ def compute_phase_difference2(iq_data, fs):
         residual = phase - (slope * t + intercept)
         return residual
 
-    phase_A = remove_carrier_phase(iq_filtered[1, :])
-    phase_B = remove_carrier_phase(iq_filtered[0, :])
+    phase_A = remove_carrier_phase(iq_filtered_A)
+    phase_B = remove_carrier_phase(iq_filtered_B)
 
     phase_diff = phase_A - phase_B
     return phase_diff
-
 
 
 def compute_phase_difference(iq_data, fs):
